@@ -6,6 +6,7 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
+import AskQuestionPage from './pages/AskQuestionPage';
 
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        {/* <Route path="/askQuestion" element={<AskQuestion />} /> */}
+        <Route path="/askQuestion" element={<AskQuestionPage />} />
       </Routes>
     </Router>
   );

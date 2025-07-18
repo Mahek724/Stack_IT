@@ -10,6 +10,7 @@ const passport = require('passport');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/admin');
+const questionRoutes = require('./routes/questions');
 const app = express();
 app.use(express.json());
 
@@ -58,5 +59,7 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+app.use('/api/questions', questionRoutes);
 
 startServer();

@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email:    { type: String, required: true, unique: true },
   password: { type: String, required: false }, // ✅ made optional
-  avatar:   { type: String },
+  avatar: { type: String, default: '/avtar.png' },
   role:     { type: String, enum: ['user', 'admin'], default: 'user' },
   googleId: { type: String, unique: true, sparse: true }, // ✅ added sparse for indexing
 });

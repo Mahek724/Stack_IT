@@ -5,6 +5,8 @@ const passport = require('passport');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const verifyToken = require('../middlewares/verifyToken');
+
 
 
 // Signup 
@@ -43,8 +45,10 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        avatar: user.avatar || '/avtar.png', // ✅ fallback
       },
     });
+
 
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -142,12 +146,21 @@ router.get('/logout', (req, res) => {
 });
 
 // Check authentication status
-router.get('/me', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+
+    res.json({
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar || '/avtar.png', // ✅ fallback path
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get user info' });
   }
 });
+
 
 module.exports = router;

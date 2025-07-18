@@ -1,52 +1,65 @@
 .navbar {
-  background-color: #A5CAE6; /* Primary UI background */
+  background-color: #5dace7;
   color: #fff;
   padding: 0.8rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .nav-left .brand {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 700;
   text-decoration: none;
   color: white;
+  transition: color 0.3s ease;
+}
+
+.nav-left .brand:hover {
+  color: #0615e7;
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
 .nav-right a {
   text-decoration: none;
   color: white;
-  font-weight: 500;
-  transition: color 0.2s ease;
+  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .nav-right a:hover {
-  color: #f0f0f0;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #0615e7;
 }
 
 .icon {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   cursor: pointer;
-  transition: transform 0.2s;
+  padding: 6px;
+  border-radius: 50%;
+  transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
 .icon:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #0615e7;
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 600px) {
   .navbar {
     flex-direction: column;
@@ -57,4 +70,143 @@
   .nav-right {
     justify-content: center;
   }
+
+  .nav-left .brand {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.profile-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  width: 220px;
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 0.5rem auto;
+}
+
+.profile-username {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.profile-edit {
+  display: block;
+  text-align: center;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  color: #1045e4;
+  transition: color 0.2s ease;
+}
+
+.profile-edit:hover {
+  color: #062461;
+}
+
+.username-input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-group button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Edit Button */
+.btn-group button:nth-child(1) {
+  background-color: #3498db;
+  color: white;
+}
+.btn-group button:nth-child(1):hover {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+/* Save Button (will replace Edit button when editing) */
+.btn-group button.save-btn {
+  background-color: #2ecc71;
+  color: white;
+}
+.btn-group button.save-btn:hover {
+  background-color: #27ae60;
+  transform: translateY(-1px);
+}
+
+/* Logout Button */
+.btn-group button.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+.btn-group button.logout-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-1px);
+}
+
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  z-index: 1000;
+  transition: color 0.2s ease;
+}
+
+.close-popup:hover {
+  color: #333;
+}
+
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.icon.profile-icon {
+  position: relative;
 }

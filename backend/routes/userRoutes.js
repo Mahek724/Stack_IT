@@ -8,37 +8,39 @@ const axios = require('axios');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+// ✅ Unified route: Update username + avatar
+router.put('/update-profile', verifyToken, upload.single('avatar'), async (req, res) => {
   try {
-    const file = req.file;
-    if (!file) return res.status(400).json({ error: 'No file uploaded' });
+    const { username } = req.body;
+    const updates = {};
 
-    const base64Image = file.buffer.toString('base64');
+    // Update username if provided
+    if (username) updates.username = username;
 
-    const imgbbRes = await axios.post(
-      `https://api.imgbb.com/1/upload?key=YOUR_IMGBB_API_KEY`,
-      new URLSearchParams({
-        image: base64Image
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }
-    );
+    // If avatar image is uploaded
+    if (req.file) {
+      const base64Image = req.file.buffer.toString('base64');
 
-    const imageUrl = imgbbRes.data.data.url;
+      const imgbbRes = await axios.post(
+        `https://api.imgbb.com/1/upload?key=YOUR_IMGBB_API_KEY`,
+        new URLSearchParams({ image: base64Image }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
 
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      { avatar: imageUrl },
-      { new: true }
-    );
+      const imageUrl = imgbbRes.data.data.url;
+      updates.avatar = imageUrl;
+    }
 
-    res.json({ avatar: user.avatar });
+    // Update user in DB
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, { new: true });
+
+    res.json({
+      username: updatedUser.username,
+      avatar: updatedUser.avatar,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Avatar upload failed' });
+    res.status(500).json({ error: 'Profile update failed' });
   }
 });
 
