@@ -5,8 +5,10 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email:    { type: String, required: true, unique: true },
   password: { type: String, required: false }, // ✅ made optional
-  avatar: { type: String, default: '/avtar.png' },
+  avatar: { type: String, default: '/avatar.png' },
   role:     { type: String, enum: ['user', 'admin'], default: 'user' },
+  reputation: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
   googleId: { type: String, unique: true, sparse: true }, // ✅ added sparse for indexing
 });
 

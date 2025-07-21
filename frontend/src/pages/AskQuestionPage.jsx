@@ -5,7 +5,6 @@ import draftToHtml from 'draftjs-to-html';
 import CreatableSelect from 'react-select/creatable';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '../assets/css/askQuestion.css';
@@ -31,7 +30,7 @@ const AskQuestionPage = () => {
   };
 }, []);
 
-  const allKeywordTags = ['react', 'node', 'express', 'mongodb', 'mongoose', 'jwt', 'firebase', 'vite', 'socket.io', 'tailwindcss'];
+  const allKeywordTags = ['react', 'node', 'express', 'mongodb', 'mongoose', 'jwt', 'firebase', 'vite', 'socket.io', 'tailwindcss', 'frontend', 'backend', 'javascript', 'python', 'sql', 'nosql', 'graphs', 'algorithms', 'database', 'security', 'docker'];
 
   const { tagOptions, addNewTag } = useTags();
 
@@ -113,7 +112,6 @@ const AskQuestionPage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="ask-container">
         <div className="ask-wrapper">
           <h1 className="ask-title">Ask a Question</h1>
@@ -153,12 +151,24 @@ const AskQuestionPage = () => {
                   },
                   image: {
                       uploadEnabled: true,
-                      uploadCallback: async (file) =>
-  new Promise((resolve) => {
-    if (!isMountedRef.current) return;
-    const previewURL = URL.createObjectURL(file);
-    resolve({ data: { link: previewURL } });
-  }),
+                      uploadCallback: async (file) => {
+                        const formData = new FormData();
+                        formData.append('file', file);
+
+                        try {
+                          const res = await axios.post('http://localhost:5000/api/upload-image', formData, {
+                            headers: {
+                              'Content-Type': 'multipart/form-data',
+                            },
+                          });
+
+                          return res.data; // { data: { link: "/api/uploads/<id>" } }
+                        } catch (error) {
+                          console.error('Image upload failed', error);
+                          return Promise.reject(error);
+                        }
+                      },
+
 
                       previewImage: true,
                       alt: { present: true, mandatory: false },

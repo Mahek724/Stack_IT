@@ -3,10 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/css/login.css';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext'; // adjust path if needed
+
 
 function Login() {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
   const navigate = useNavigate();
+  const { login } = useAuth(); // 👈 extract the `login` function
+
 
   // ✅ 1. On load, check for saved credentials
   useEffect(() => {
@@ -52,8 +56,9 @@ function Login() {
         localStorage.removeItem('rememberedCredentials');
       }
 
-      localStorage.setItem('token', res.data.token);
+     login(res.data.token, res.data.user); // 👈 update context
       navigate('/');
+
     } catch (err) {
       alert(err.response?.data?.error || 'Login failed');
     }

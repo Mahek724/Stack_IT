@@ -3,19 +3,24 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/css/signup.css';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+
 
 function Signup() {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const navigate = useNavigate();
+
+   const { login } = useAuth();
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', form);
+     const res = await axios.post('http://localhost:5000/api/auth/signup', form);
       localStorage.setItem('token', res.data.token);
-      navigate('/');
+      login(res.data.token, res.data.user); // ✅ log in via context
+      navigate('/'); // ✅ go to home/dashboard
     } catch (err) {
       alert(err.response?.data?.error || 'Signup failed');
     }

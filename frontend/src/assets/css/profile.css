@@ -1,0 +1,376 @@
+.profile-container {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: auto;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* === Layout Row for Profile & Stats === */
+.profile-stats-row {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Profile Info (left side) */
+.user-info-card {
+  display: flex;
+  align-items: center;
+  gap: 2.6rem !important;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 1.5rem 2rem;
+  text-align: left;
+}
+
+/* Basic Stats (right side) */
+.stats-card {
+  flex: 1;
+  min-width: 220px;
+  max-width: 300px;
+  background: #f9f9f9;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stats-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: #f1f5f9;
+  transition: background-color 0.3s ease;
+}
+
+.stats-list li:hover {
+  background-color: #e6f0ff;
+}
+
+.stats-list .icon {
+  color: #007bff;
+  font-size: 1.2rem;
+  min-width: 20px;
+}
+
+.stats-list span {
+  flex: 1;
+  color: #333;
+}
+
+.stats-list strong {
+  font-weight: bold;
+  color: #222;
+}
+
+/* Avatar Styling */
+.avatar-section img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  transition: transform 0.3s ease;
+}
+
+.avatar-section img:hover {
+  transform: scale(1.05);
+}
+
+.avatar-section {
+  flex-shrink: 0;
+}
+
+.clickable-avatar {
+  cursor: pointer;
+}
+
+/* Profile Info */
+.info-section {
+ .info-section > * {
+  margin: 0.3rem 0; /* reduce vertical margin */
+  line-height: 1.2;  /* tighten line spacing */
+}
+
+}
+
+.username-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.username-input {
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  color: #333;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.username-input:disabled {
+  background-color: #eaeaea;
+  border: 1px dashed #bbb;
+  cursor: not-allowed;
+}
+
+.save-btn {
+  background-color: #0066cc;
+  color: white;
+  padding: 0.3rem 0.9rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn:hover {
+  background-color: #004999;
+  transform: scale(1.03);
+}
+
+.reputation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.activity-summary h3 {
+  margin-bottom: 1rem;
+}
+
+.activity-item {
+  margin-bottom: 1rem;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  background: #f1f5f9;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.activity-header:hover {
+  background-color: #e1eaff;
+}
+
+.activity-list {
+  list-style: none;
+  margin: 0.6rem 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid #ddd;
+}
+
+.activity-list li {
+  margin: 0.4rem 0;
+}
+
+.activity-list a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.activity-list a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+
+/* My Questions Section */
+
+.question-card {
+  padding: 1.4rem 1.8rem;
+  margin-bottom: 1.2rem;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.q-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.q-title:hover {
+  color: #3b82f6; /* Tailwind’s blue-500 */
+}
+
+.q-desc {
+  font-size: 1rem;
+  color: #555;
+  margin: 0.7rem 0;
+  line-height: 1.5;
+}
+
+.q-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.4rem;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  color: #444;
+}
+
+.q-meta span {
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.q-meta strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Optional color-coded status pill */
+.q-status-pill {
+  padding: 0.2rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.reputation-box {
+  margin-top: 1.2rem;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  background-color: #f0f4ff;
+  text-align: center;
+  font-size: 0.95rem;
+  width: 170px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.rep-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  color: #1d4ed8;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.rep-icon {
+  color: #fbbf24; /* Yellow */
+}
+
+.rep-score {
+  font-weight: 600;
+  color: #111827;
+  margin: 0.2rem 0;
+}
+
+.rep-next {
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+/* Logout Section */
+.logout {
+  text-align: center;
+   width: 200px; /* You can adjust this width as needed */
+  margin: 0 auto;
+}
+
+.logout button {
+  padding: 0.6rem 1.4rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+
+.logout button:hover {
+  background-color: #a71d2a;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .profile-stats-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-info-card,
+  .stats-card {
+    width: 100%;
+  }
+
+  .q-meta {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .user-info-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .info-section {
+    align-items: center;
+  }
+}

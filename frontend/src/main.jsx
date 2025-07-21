@@ -9,6 +9,8 @@ import { TagProvider } from './context/TagContext';
 // ✅ Fix for Draft.js - setImmediate polyfill
 import 'setimmediate';
 import process from 'process';
+import { AuthProvider } from './context/AuthContext.jsx';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 window.global = window;
 window.process = process;
@@ -18,8 +20,10 @@ if (typeof window.setImmediate === 'undefined') {
 }
 
 createRoot(document.getElementById('root')).render(
-    <TagProvider>
+      <AuthProvider>
+      <TagProvider>
       <App />
       <ToastContainer position="top-right" autoClose={3000} />
     </TagProvider>
+    </AuthProvider>
 );

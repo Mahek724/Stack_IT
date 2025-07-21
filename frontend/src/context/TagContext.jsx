@@ -13,6 +13,23 @@ const defaultTags = [
   { label: 'Firebase', value: 'Firebase' },
   { label: 'TailwindCSS', value: 'TailwindCSS' },
   { label: 'VITE', value: 'Vite' },
+  { label: 'Frontend', value: 'Frontend' },
+  { label: 'Backend', value: 'Backend' },
+  { label: 'Javascript', value: 'Javascript' },
+  { label: 'Python', value: 'Pyrhon' },
+  { label: 'SQL', value: 'sql' },
+  { label: 'NoSQL', value: 'nosql' },
+  { label: 'Graphs', value: 'Graphs' },
+  { label: 'Algorithms', value: 'Algorithms' },
+  { label: 'Database', value: 'Database' },
+  { label: 'Security', value: 'Security' },
+  { label: 'Docker', value: 'Docker' },
+
+
+
+
+
+
 ];
 
 export const TagProvider = ({ children }) => {

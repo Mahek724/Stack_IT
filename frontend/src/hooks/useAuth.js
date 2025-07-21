@@ -14,12 +14,13 @@ const useAuth = () => {
       return;
     }
 
-    axios
-      .get('http://localhost:5000/api/user/profile', {
+      axios
+      .get('http://localhost:5000/api/auth/me', {   // ✅ unified
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
+
       .then(res => {
         setUser(res.data.user);
         setLoading(false);
