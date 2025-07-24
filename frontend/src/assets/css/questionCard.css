@@ -94,39 +94,40 @@
   color: #666;
 }
 
+.meta-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+
 .accepted {
   color: green;
   font-weight: bold;
   margin-left: 6px;
 }
 
-.vote-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.vote-box, .vote-btn, .vote-percent {
+  display: none; /* Hide old vote UI elements */
 }
 
-.vote-btn {
-  background-color: #f1f3f5;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.vote-btn:hover {
-  background-color: #ddd;
+.vote-display {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #444;
+  margin-top: 4px;
 }
 
 .vote-count {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #222;
-}
-
-.vote-percent {
-  font-size: 0.85rem;
-  color: #888;
+  color: #1d4ed8;
+  margin-left: 4px;
 }

@@ -1,0 +1,193 @@
+body {
+  background-color: #FFF4DB; 
+
+}
+
+.ask-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.ask-wrapper {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  /* padding-bottom: 30rem;   ✅ Extra space at bottom */
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.ask-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #4466cc;
+  text-align: center;
+}
+
+.form-label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.editor-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 0.6rem;
+  min-height: 250px;
+
+  /* Add these lines: */
+  position: relative;
+  z-index: 20;
+  overflow: visible !important;
+}
+
+
+
+.tag-select {
+  margin-top: 0.5rem;
+}
+
+.submit-btn {
+  display: block;
+  margin: 1.5rem auto 0 auto;  /* Center horizontally with auto margins */
+  padding: 0.8rem 2rem;
+  background-color: #4466cc;
+  border: none;
+  color: white;
+  font-weight: 550;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+select.form-input {
+  background-color: #fff;
+  appearance: none;
+}
+
+
+.submit-btn:hover {
+  background-color: #062461;
+}
+/* Highlight selected toolbar buttons */
+.rdw-option-wrapper {
+  border-radius: 6px;
+  margin: 2px;
+  padding: 6px;
+  transition: 0.2s ease;
+}
+
+.rdw-option-wrapper:hover {
+  background-color: #dbeafe; /* light blue hover */
+  box-shadow: 0 0 0 2px #98AEE6;
+}
+
+.rdw-option-active {
+  background-color: #98AEE6 !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px #4466cc !important;
+}
+
+/* Improve toolbar spacing */
+.rdw-editor-toolbar {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+}
+
+.tag-select .react-select__control {
+  border-radius: 8px;
+  border-color: #ccc;
+  box-shadow: none;
+}
+
+.tag-select .react-select__control:hover {
+  border-color: #98AEE6;
+}
+
+.tag-select .react-select__multi-value {
+  background-color: #dbeafe;
+  color: #333;
+}
+
+.tag-select .react-select__multi-value__label {
+  font-weight: 500;
+}
+
+.tag-select .react-select__multi-value__remove:hover {
+  background-color: #4466cc;
+  color: white;
+}
+
+.preview-box {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  min-height: 150px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+  color: #333;
+  word-wrap: break-word;
+}
+.preview-box h1,
+.preview-box h2 {
+  color: #4466cc;
+  margin-top: 1rem;
+}
+
+.preview-box a {
+  color: #3366cc;
+  text-decoration: underline;
+}
+.preview-box img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.75rem auto;
+  border-radius: 8px;
+}
+.preview-meta {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.preview-meta strong {
+  color: #333;
+}
+
+/* Limit image size in preview */
+.preview-box img,
+.editor-wrapper img {
+  max-width: 100%;
+  max-height: 350px;  /* ✅ Limit height */
+  height: auto;
+  display: block;
+  margin: 0.75rem auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+

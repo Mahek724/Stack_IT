@@ -15,7 +15,6 @@ const questionRoutes = require('./routes/questions');
 const uploadRoutes = require('./routes/upload');
 const profileRoutes = require('./routes/profile');
 const answerRoutes = require('./routes/answerRoutes');
-app.use('/api/answers', answerRoutes);
 
 const app = express();
 app.use(express.json());
@@ -52,7 +51,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api', uploadRoutes);  // must come after DB init
+app.use('/api', uploadRoutes);  
+app.use('/api/answers', answerRoutes);
+// must come after DB init
 
 // ✅ Static folder
 app.use('/uploads', express.static('uploads'));

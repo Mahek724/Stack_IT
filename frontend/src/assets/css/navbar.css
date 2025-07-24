@@ -1,17 +1,23 @@
 .navbar {
+  position: fixed;               /* ✅ Stick to top globally */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;                  /* ✅ realistic height */
   background-color: #5dace7;
   color: #fff;
-  padding: 0.8rem 2rem;
+  padding: 0 2rem;               /* ✅ No vertical padding to avoid height conflict */
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  height: 35px !important;
-  top: 0;
-  z-index: 100;
+  z-index: 1000;
 }
+.main-content {
+  padding-top: 56px; /* Same as navbar height */
+}
+
 
 .nav-left .brand {
   font-size: 1.6rem;

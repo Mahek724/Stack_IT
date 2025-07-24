@@ -6,13 +6,12 @@ const QuestionCard = ({ question }) => {
   const upvotes = question.upvotes || [];
   const downvotes = question.downvotes || [];
   const answers = question.answers || [];
-  const totalVotes = upvotes.length + downvotes.length;
-  const votePercent = totalVotes === 0 ? '0%' : `${Math.round((upvotes.length / totalVotes) * 100)}%`;
+  const netVotes = upvotes.length - downvotes.length;
 
   return (
     <div className="question-card">
       <div className="question-header">
-        <Link to={`/question/${question._id}`} className="question-title">
+        <Link to={`/questions/${question._id}`} className="question-title">
           {question.title}
         </Link>
         <div
@@ -23,7 +22,6 @@ const QuestionCard = ({ question }) => {
               : ''
           }}
         />
-
       </div>
 
       <div className="question-footer">
@@ -35,18 +33,16 @@ const QuestionCard = ({ question }) => {
           </div>
           <div className="author">
             <img
-  src={
-    question.userId?.avatar
-      ? question.userId.avatar.startsWith('/api/')
-        ? `http://localhost:5000${question.userId.avatar}`
-        : `http://localhost:5000/api/uploads/${question.userId.avatar}`
-      : '/avatar.png'  // ✅ This will now work
-  }
-  alt="avatar"
-  className="avatar"
-/>
-
-
+              src={
+                question.userId?.avatar
+                  ? question.userId.avatar.startsWith('/api/')
+                    ? `http://localhost:5000${question.userId.avatar}`
+                    : `http://localhost:5000/api/uploads/${question.userId.avatar}`
+                  : '/avatar.png'
+              }
+              alt="avatar"
+              className="avatar"
+            />
             <span className="username">{question.userId?.username || 'User'}</span>
           </div>
         </div>
@@ -59,11 +55,8 @@ const QuestionCard = ({ question }) => {
             {question.acceptedAnswer && <span className="accepted"> ✅ Accepted</span>}
           </div>
 
-          <div className="vote-box">
-            <button className="vote-btn">👍</button>
-            <span className="vote-count">{upvotes.length - downvotes.length}</span>
-            <button className="vote-btn">👎</button>
-            <span className="vote-percent">({votePercent})</span>
+          <div className="vote-display">
+            👍 Votes: <span className="vote-count">{netVotes}</span>
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import SmartNavbar from './components/SmartNavbar'; // ✅ Import it here
 import ProfilePage from './pages/ProfilePage';
 import AnswerPage from './pages/AnswerPage';
+import EditQuestionPage from './pages/EditQuestionPage'; // ✅ Import EditQuestionPage
 
 function App() {
   return (
@@ -21,7 +22,9 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/askQuestion" element={<AskQuestionPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/answer" element={<AnswerPage />} />
+        <Route path="/questions/:id" element={<AnswerPage />} />
+        <Route path="/edit-question/:id" element={<EditQuestionPage />} />
+
 
 
       </Routes>

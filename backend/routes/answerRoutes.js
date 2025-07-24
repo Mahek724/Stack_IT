@@ -5,7 +5,7 @@ const Question = require('../models/Question');
 const verifyToken = require('../middlewares/verifyToken');
 
 // Get all answers for a question
-router.get('/:questionId', async (req, res) => {
+router.get('/question/:questionId', async (req, res) => {
   const answers = await Answer.find({ questionId: req.params.questionId })
     .populate('userId', 'username avatar')
     .sort({ createdAt: -1 });
