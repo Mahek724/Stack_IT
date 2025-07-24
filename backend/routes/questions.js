@@ -25,17 +25,42 @@ router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
 
 router.get('/', async (req, res) => {
   try {
-    const questions = await Question.find()
-      .sort({ createdAt: -1 })
-      .populate('userId', 'username')
+    const { search = '', filter = 'newest', page = 1 } = req.query;
+    const limit = 5;
+    const skip = (parseInt(page) - 1) * limit;
+
+    const query = {
+      $or: [
+        { title: { $regex: search, $options: 'i' } },
+        { tags: { $regex: search, $options: 'i' } },
+      ],
+    };
+
+    if (filter === 'unanswered') {
+      query.status = 'open'; // or: answers.length === 0 depending on model
+    }
+
+    let sortOption = { createdAt: -1 }; // default newest
+    if (filter === 'mostvoted') {
+      sortOption = { upvotes: -1 };
+    }
+
+    const total = await Question.countDocuments(query);
+
+    const questions = await Question.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate('userId', 'username avatar')
       .lean();
 
-    res.json(questions);
+    res.json({ questions, total });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching paginated questions:', err);
     res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
+
 
 
 // PUT /api/questions/:questionId/accept/:answerId

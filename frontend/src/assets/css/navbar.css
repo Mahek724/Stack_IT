@@ -55,6 +55,14 @@
   color: white;
 }
 
+.navbar-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
 .icon:hover {
   transform: scale(1.1);
   background-color: rgba(255, 255, 255, 0.15);

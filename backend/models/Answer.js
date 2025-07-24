@@ -27,6 +27,11 @@ const AnswerSchema = new mongoose.Schema({
       ref: 'User',
     }
   ],
+  acceptedAnswer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Answer',
+    default: null,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Answer', AnswerSchema);

@@ -116,9 +116,30 @@ html, body {
   background-color: #0056b3;
 }
 .pagination {
-  padding: 1rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
 }
+
+.pagination button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #ddd;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.pagination button.active {
+  background-color: #11AEAE;
+  color: white;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 
 
 

@@ -189,7 +189,12 @@ const ProfilePage = () => {
       </div>
       <p>{user.email}</p>
       <p><strong>Role:</strong> {user.role}</p>
-      <p><strong>Joined:</strong> {new Date(user.createdAt).toDateString()}</p>
+      <p><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+})}</p>
+
       <p>
         <strong>Reputation:</strong>
         <span
@@ -331,13 +336,32 @@ const ProfilePage = () => {
 
       {/* Logout */}
       <section className="card logout">
-        <button
-          onClick={() =>
-            axios.post('/api/profile/logout-all').then(() => window.location.href = '/')
-          }>
-          Logout
-        </button>
-      </section>
+  <button
+    onClick={() => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      axios.post('/api/profile/logout-all', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(() => {
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      })
+      .catch(err => {
+        console.error("Logout failed:", err.response?.data || err.message);
+      });
+    }}
+  >
+    Logout
+  </button>
+</section>
+
     </div>
   );
 };

@@ -10,11 +10,13 @@ const HomePage = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('newest');
   const [page, setPage] = useState(1);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const limit = 5;
 
-  const { user } = useAuth();          // ✅ Access current user
+  const { user } = useAuth();          // Access current user
   const navigate = useNavigate();      // ✅ For programmatic navigation
 
-  // ✅ Handle Ask Question click
+  // Handle Ask Question click
   const handleAskQuestion = () => {
     if (user) {
       navigate('/askQuestion');
@@ -24,19 +26,22 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/api/questions?search=${search}&filter=${filter}&page=${page}`
-        );
-        setQuestions(res.data);
-      } catch (err) {
-        console.error('Error fetching questions:', err);
-      }
-    };
+  const fetchQuestions = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/questions?search=${search}&filter=${filter}&page=${page}`
+      );
+      setQuestions(res.data.questions);
+      setTotalQuestions(res.data.total);
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+    }
+  };
 
-    fetchQuestions();
-  }, [search, filter, page]);
+  fetchQuestions();
+}, [search, filter, page]);
+
+const totalPages = Math.ceil(totalQuestions / limit);
 
   return (
     <div className="homepage">
@@ -76,12 +81,31 @@ const HomePage = () => {
 
       {/* ✅ Pagination */}
       <div className="pagination">
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+        <button
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
           Previous
         </button>
-        <span>Page {page}</span>
-        <button onClick={() => setPage(page + 1)}>Next</button>
+
+        {[...Array(totalPages)].map((_, index) => (
+          <button
+            key={index}
+            className={page === index + 1 ? 'active' : ''}
+            onClick={() => setPage(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
       </div>
+
     </div>
   );
 };

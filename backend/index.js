@@ -14,6 +14,8 @@ const adminRoutes = require('./routes/admin');
 const questionRoutes = require('./routes/questions');
 const uploadRoutes = require('./routes/upload');
 const profileRoutes = require('./routes/profile');
+const answerRoutes = require('./routes/answerRoutes');
+app.use('/api/answers', answerRoutes);
 
 const app = express();
 app.use(express.json());

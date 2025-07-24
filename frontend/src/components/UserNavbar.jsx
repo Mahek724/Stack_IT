@@ -14,12 +14,14 @@ const UserNavbar = () => {
         if (!token) return;
 
         const res = await axios.get('http://localhost:5000/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
-        setUser(res.data);
+console.log('Fetched user:', res.data);
+setUser(res.data.user);
+
       } catch (err) {
         console.error('Error fetching user:', err);
       }
@@ -39,7 +41,27 @@ const UserNavbar = () => {
           <FaBell />
         </span>
         <Link to="/profile" className="icon profile-icon" aria-label="Profile">
-          <FaUserCircle />
+          {user ? (
+  <img
+    src={
+      user.avatar
+        ? user.avatar.startsWith('/api/')
+          ? `http://localhost:5000${user.avatar}`
+          : `http://localhost:5000/api/uploads/${user.avatar}`
+        : '/default-avatar.png' // ✅ fallback to default image
+    }
+    alt="Profile"
+    className="navbar-avatar"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = '/avatar.png'; // ✅ fallback if broken image
+    }}
+  />
+) : (
+  <FaUserCircle />
+)}
+
+
         </Link>
       </div>
     </nav>

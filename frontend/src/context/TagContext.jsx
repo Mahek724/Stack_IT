@@ -3,41 +3,40 @@ import React, { createContext, useContext, useState } from 'react';
 const TagContext = createContext();
 
 const defaultTags = [
-  { label: 'React', value: 'React' },
-  { label: 'Node.js', value: 'Node.js' },
-  { label: 'MongoDB', value: 'MongoDB' },
-  { label: 'Express', value: 'Express' },
-  { label: 'JWT', value: 'JWT' },
-  { label: 'Mongoose', value: 'Mongoose' },
-  { label: 'Socket.IO', value: 'Socket.IO' },
-  { label: 'Firebase', value: 'Firebase' },
-  { label: 'TailwindCSS', value: 'TailwindCSS' },
-  { label: 'VITE', value: 'Vite' },
-  { label: 'Frontend', value: 'Frontend' },
-  { label: 'Backend', value: 'Backend' },
-  { label: 'Javascript', value: 'Javascript' },
-  { label: 'Python', value: 'Pyrhon' },
+  { label: 'React', value: 'react' },
+  { label: 'Node.js', value: 'nodejs' },
+  { label: 'MongoDB', value: 'mongodb' },
+  { label: 'Express', value: 'express' },
+  { label: 'JWT', value: 'jwt' },
+  { label: 'Mongoose', value: 'mongoose' },
+  { label: 'Socket.IO', value: 'socket.io' },
+  { label: 'Firebase', value: 'firebase' },
+  { label: 'TailwindCSS', value: 'tailwindcss' },
+  { label: 'Vite', value: 'vite' },
+  { label: 'Frontend', value: 'frontend' },
+  { label: 'Backend', value: 'backend' },
+  { label: 'Javascript', value: 'javascript' },
+  { label: 'Python', value: 'python' },
   { label: 'SQL', value: 'sql' },
   { label: 'NoSQL', value: 'nosql' },
-  { label: 'Graphs', value: 'Graphs' },
-  { label: 'Algorithms', value: 'Algorithms' },
-  { label: 'Database', value: 'Database' },
-  { label: 'Security', value: 'Security' },
-  { label: 'Docker', value: 'Docker' },
-
-
-
-
-
-
+  { label: 'Graphs', value: 'graphs' },
+  { label: 'Algorithms', value: 'algorithms' },
+  { label: 'Database', value: 'database' },
+  { label: 'Security', value: 'security' },
+  { label: 'Docker', value: 'docker' },
 ];
 
 export const TagProvider = ({ children }) => {
   const [tagOptions, setTagOptions] = useState(defaultTags);
 
   const addNewTag = (newTag) => {
-    if (!tagOptions.some(tag => tag.value.toLowerCase() === newTag.toLowerCase())) {
-      setTagOptions(prev => [...prev, { label: newTag, value: newTag }]);
+    const normalized = newTag.toLowerCase();
+    const exists = tagOptions.some(tag => tag.value === normalized);
+    if (!exists) {
+      setTagOptions(prev => [
+        ...prev,
+        { label: normalized.charAt(0).toUpperCase() + normalized.slice(1), value: normalized }
+      ]);
     }
   };
 
@@ -48,4 +47,5 @@ export const TagProvider = ({ children }) => {
   );
 };
 
+// ✅ This is the missing export
 export const useTags = () => useContext(TagContext);

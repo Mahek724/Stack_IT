@@ -17,7 +17,9 @@ const AskQuestionPage = () => {
   const isMountedRef = useRef(true);
   const [status, setStatus] = useState('open');
   const [showPreview, setShowPreview] = useState(true);
+   const { tagOptions, addNewTag } = useTags();
 
+const keywordTags = tagOptions.map(tag => tag.value.toLowerCase());
 
 
   useEffect(() => {
@@ -30,42 +32,53 @@ const AskQuestionPage = () => {
   };
 }, []);
 
-  const allKeywordTags = ['react', 'node', 'express', 'mongodb', 'mongoose', 'jwt', 'firebase', 'vite', 'socket.io', 'tailwindcss', 'frontend', 'backend', 'javascript', 'python', 'sql', 'nosql', 'graphs', 'algorithms', 'database', 'security', 'docker'];
+  const detectTagsFromText = (text) => {
+  const lowerText = text.toLowerCase();
 
-  const { tagOptions, addNewTag } = useTags();
-
-  const detectTagsFromTitle = (inputTitle) => {
-    const lowerTitle = inputTitle.toLowerCase();
-    const detected = allKeywordTags
-      .filter(tag => lowerTitle.includes(tag))
-      .map(tag => ({ label: tag, value: tag }));
-
-    // Merge without duplicates
-    const merged = [...tags];
-    detected.forEach(tag => {
-      if (!merged.find(t => t.value === tag.value)) {
-        merged.push(tag);
-      }
+  const detected = keywordTags
+    .filter(tag => lowerText.includes(tag))
+    .map(tag => {
+      const match = tagOptions.find(t => t.value === tag);
+      return match || { label: tag.charAt(0).toUpperCase() + tag.slice(1), value: tag };
     });
 
-    setTags(merged);
-  };
+  const merged = [...tags];
+  detected.forEach(tag => {
+    if (!merged.find(t => t.value === tag.value)) {
+      merged.push(tag);
+    }
+  });
+
+  setTags(merged);
+};
+
+useEffect(() => {
+  const plainText = editorState.getCurrentContent().getPlainText();
+  detectTagsFromText(plainText);
+}, [editorState]);
+
 
   const handleTitleChange = (e) => {
-    const val = e.target.value;
-    setTitle(val);
-    detectTagsFromTitle(val);
-  };
+  const val = e.target.value;
+  setTitle(val);
+  detectTagsFromText(val);
+};
+
 
   const handleTagChange = (selected) => {
     setTags(selected || []);
   };
 
   const handleTagCreate = (inputValue) => {
-    const newTag = { label: inputValue, value: inputValue };
-    addNewTag(inputValue);
-    setTags((prev) => [...prev, newTag]);
+  const normalized = inputValue.toLowerCase();
+  const newTag = {
+    label: inputValue.charAt(0).toUpperCase() + inputValue.slice(1),
+    value: normalized
   };
+  addNewTag(normalized);
+  setTags(prev => [...prev, newTag]);
+};
+
 
   
 

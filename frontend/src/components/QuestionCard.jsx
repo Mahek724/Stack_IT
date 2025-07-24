@@ -35,10 +35,18 @@ const QuestionCard = ({ question }) => {
           </div>
           <div className="author">
             <img
-              src={question.userId?.avatar || '/default-avatar.png'}
-              alt="avatar"
-              className="avatar"
-            />
+  src={
+    question.userId?.avatar
+      ? question.userId.avatar.startsWith('/api/')
+        ? `http://localhost:5000${question.userId.avatar}`
+        : `http://localhost:5000/api/uploads/${question.userId.avatar}`
+      : '/avatar.png'  // ✅ This will now work
+  }
+  alt="avatar"
+  className="avatar"
+/>
+
+
             <span className="username">{question.userId?.username || 'User'}</span>
           </div>
         </div>
