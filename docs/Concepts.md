@@ -1,10 +1,10 @@
-# 📘 Stack_IT – Key Project Concepts
+# Stack_IT – Key Project Concepts
 
 This document outlines the core concepts integral to the Stack_IT project, organized by Object, Context, and Relevant Information.
 
 ---
 
-### 🔹 1. User
+### 1. User
 
 - **Object**: User  
 - **Context**: Used for authentication, profile management, and activity tracking  
@@ -16,7 +16,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 2. Question
+### 2. Question
 
 - **Object**: Question  
 - **Context**: Core content posted by users to seek answers  
@@ -28,7 +28,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 3. Answer
+### 3. Answer
 
 - **Object**: Answer  
 - **Context**: Provided by users to respond to questions  
@@ -40,7 +40,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 4. Tags
+### 4. Tags
 
 - **Object**: Tag  
 - **Context**: Categorizes questions by topic  
@@ -50,7 +50,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 5. Votes
+### 5. Votes
 
 - **Object**: Vote  
 - **Context**: Track reputation and community feedback  
@@ -61,7 +61,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 6. Authentication
+### 6. Authentication
 
 - **Object**: Auth System  
 - **Context**: Manages login, signup, and secure access  
@@ -73,7 +73,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 7. Rich Text Editor
+### 7. Rich Text Editor
 
 - **Object**: Editor (`react-draft-wysiwyg`)  
 - **Context**: Used for submitting questions and answers  
@@ -83,7 +83,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 8. Accepted Answer
+### 8. Accepted Answer
 
 - **Object**: Answer Status  
 - **Context**: Indicates the answer accepted by the question author  
@@ -94,7 +94,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 9. Search and Filter
+### 9. Search and Filter
 
 - **Object**: Search System  
 - **Context**: Allows users to discover questions efficiently  
@@ -105,7 +105,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 10. Profile Page
+### 10. Profile Page
 
 - **Object**: User Profile  
 - **Context**: Displays user-specific activity and details  
@@ -116,7 +116,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 11. MongoDB Data Model
+### 11. MongoDB Data Model
 
 - **Object**: NoSQL Schema  
 - **Context**: Manages backend data structure  
@@ -127,7 +127,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 12. Security
+### 12. Security
 
 - **Object**: Secure Access  
 - **Context**: Protects APIs and sensitive data  
@@ -138,7 +138,7 @@ This document outlines the core concepts integral to the Stack_IT project, organ
 
 ---
 
-### 🔹 13. Tech Stack
+### 13. Tech Stack
 
 - **Frontend**: React, Vite, Axios, CSS  
 - **Backend**: Node.js, Express  
