@@ -59,4 +59,50 @@ router.post('/accept/:answerId', verifyToken, async (req, res) => {
   res.json({ message: 'Answer accepted' });
 });
 
+// Get answer by ID
+router.get('/:answerId', async (req, res) => {
+  const answer = await Answer.findById(req.params.answerId);
+  if (!answer) return res.status(404).json({ error: 'Answer not found' });
+  res.json(answer);
+});
+
+// Update answer
+router.put('/:answerId', verifyToken, async (req, res) => {
+  const { answerId } = req.params;
+  const { content } = req.body;
+  const answer = await Answer.findById(answerId);
+  if (!answer) return res.status(404).json({ error: 'Answer not found' });
+  if (answer.userId.toString() !== req.user.id)
+    return res.status(403).json({ error: 'Unauthorized' });
+
+  answer.content = content;
+  await answer.save();
+  res.json({ message: 'Answer updated' });
+});
+
+// Delete answer by ID
+router.delete('/:answerId', verifyToken, async (req, res) => {
+  const { answerId } = req.params;
+
+  const answer = await Answer.findById(answerId);
+  if (!answer) return res.status(404).json({ error: 'Answer not found' });
+
+  if (answer.userId.toString() !== req.user.id) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+
+  const question = await Question.findById(answer.questionId);
+
+  // ✅ If the deleted answer was accepted, clear it from question
+  if (question && question.acceptedAnswer?.toString() === answer._id.toString()) {
+    question.acceptedAnswer = null;
+    await question.save();
+  }
+
+  await answer.deleteOne();
+  res.json({ message: 'Answer deleted successfully' });
+});
+
+
+
 module.exports = router;

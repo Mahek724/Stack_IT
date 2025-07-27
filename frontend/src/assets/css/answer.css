@@ -18,6 +18,50 @@
   color: #007bff;
 }
 
+.answer-controls {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.answer-controls button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.answer-controls button:hover {
+  transform: translateY(-1px);
+}
+
+.answer-controls button:first-child {
+  background-color: #3b82f6; /* Blue for Edit */
+  color: white;
+}
+
+.answer-controls button:first-child:hover {
+  background-color: #2563eb;
+}
+
+.answer-controls button:last-child {
+  background-color: #ef4444; /* Red for Delete */
+  color: white;
+}
+
+.answer-controls button:last-child:hover {
+  background-color: #dc2626;
+}
+
+
+
 /* Question Box */
 .question-box {
   background: #f9f9f9;
@@ -379,3 +423,9 @@
   margin: 0 0.5rem;
 }
 
+.answer-vote-block {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0.6rem 0;
+}

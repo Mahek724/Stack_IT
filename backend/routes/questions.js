@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Question = require('../models/Question');
 const verifyToken = require('../middlewares/verifyToken'); // ✅ import middleware
+const Answer = require('../models/Answer'); 
 
 router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
   try {
@@ -37,13 +38,11 @@ router.get('/', async (req, res) => {
     };
 
     if (filter === 'unanswered') {
-      query.status = 'open'; // or: answers.length === 0 depending on model
+      query.status = 'open';
     }
 
-    let sortOption = { createdAt: -1 }; // default newest
-    if (filter === 'mostvoted') {
-      sortOption = { upvotes: -1 };
-    }
+    let sortOption = { createdAt: -1 };
+    if (filter === 'mostvoted') sortOption = { upvotes: -1 };
 
     const total = await Question.countDocuments(query);
 
@@ -54,7 +53,19 @@ router.get('/', async (req, res) => {
       .populate('userId', 'username avatar')
       .lean();
 
-    res.json({ questions, total });
+    // ✅ Add answersCount and ensure views field
+    const questionsWithExtras = await Promise.all(
+      questions.map(async (q) => {
+        const answersCount = await Answer.countDocuments({ questionId: q._id });
+        return {
+          ...q,
+          answers: Array(answersCount).fill({}), // just to mimic answer array
+          views: q.views || 0
+        };
+      })
+    );
+
+    res.json({ questions: questionsWithExtras, total });
   } catch (err) {
     console.error('Error fetching paginated questions:', err);
     res.status(500).json({ error: 'Failed to fetch questions' });
@@ -87,20 +98,32 @@ router.put('/:questionId/accept/:answerId', verifyToken, async (req, res) => {
 // GET /api/questions/:id - fetch single question by ID
 router.get('/:id', async (req, res) => {
   try {
-    const question = await Question.findById(req.params.id)
+    const question = await Question.findById(req.params.id);
+
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+
+    // Get viewer ID (logged-in user OR guest token)
+    const userId = req.user?.id || req.headers['x-guest-id']; // support both
+    const alreadyViewed = question.viewedBy.includes(userId);
+
+    if (!alreadyViewed) {
+      question.views += 1;
+      question.viewedBy.push(userId);
+      await question.save();
+    }
+
+    const populated = await Question.findById(req.params.id)
       .populate('userId', 'username avatar')
       .lean();
 
-    if (!question) {
-      return res.status(404).json({ error: 'Question not found' });
-    }
-
-    res.json(question);
+    res.json(populated);
   } catch (err) {
-    console.error('❌ Error fetching question by ID:', err);
-    res.status(500).json({ error: 'Server error fetching question' });
+    console.error('❌ Error fetching question:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
+
 
 // PUT /api/questions/:id - Edit Question (title, description, tags)
 router.put('/:id', verifyToken, async (req, res) => {

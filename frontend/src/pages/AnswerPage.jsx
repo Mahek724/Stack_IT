@@ -31,21 +31,46 @@ const AnswerPage = () => {
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  const guestIdKey = 'guestId';
+
+  let headers = {};
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  } else {
+    let guestId = localStorage.getItem(guestIdKey);
+    if (!guestId) {
+      guestId = `guest_${Math.random().toString(36).substring(2, 15)}`;
+      localStorage.setItem(guestIdKey, guestId);
+    }
+    headers['x-guest-id'] = guestId;
+  }
+
+  axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
+  axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+}, [id]);
+
+
   const handleVote = async (targetId, type, isQuestion = false) => {
   if (!user) {
-    toast.info("Login required to vote"); // ✅ Show toast
-    navigate('/login'); // ✅ Or redirect to login
+    toast.info("Login required to vote");
+    navigate('/login');
     return;
   }
 
   try {
-    const url = isQuestion ? `/api/questions/${targetId}/vote` : `/api/answers/${targetId}/${type}`;
-    const payload = isQuestion ? { type } : {};
+    const url = isQuestion
+      ? `/api/questions/${targetId}/vote`
+      : `/api/answers/vote/${targetId}`;
+
+    const payload = isQuestion ? { type } : { type };
+
     await axios.post(url, payload, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
 
-    // Refresh data
     axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   } catch (err) {
@@ -53,7 +78,6 @@ const AnswerPage = () => {
     console.error(err);
   }
 };
-
 
   const handleSubmitAnswer = async () => {
   if (!user) {
@@ -87,9 +111,10 @@ const AnswerPage = () => {
 
 
   const handleAccept = async (answerId) => {
-    await axios.put(`/api/questions/${id}/accept/${answerId}`, {}, {
+    await axios.post(`/api/answers/accept/${answerId}`, {}, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
+
     axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   };
@@ -224,41 +249,75 @@ const AnswerPage = () => {
         </div>
       </div>
 
-      {answersVisible && (
-        <div className="answers-section">
-          <h3>{answers.length} Answer{answers.length !== 1 ? 's' : ''}</h3>
-          {answers.map(ans => (
-            <div key={ans._id} className="answer-card">
-              <div className="answer-body">
-                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ans.content) }} />
-                <div className="answer-footer-horizontal">
-                  <span><i className="fas fa-user-circle"></i> {ans.username}</span>
-                  <span className="answer-meta">
-                    📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
-                    <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
-                  </span>
-                  {user?._id === ans.userId && (
-                    <div className="answer-controls">
-                      <button onClick={() => navigate(`/edit-answer/${ans._id}`)}>Edit</button>
-                      <button onClick={() => handleDelete('answer', ans._id)}>Delete</button>
-                    </div>
-                  )}
-                  {question.userId === user?._id && !question.acceptedAnswer && (
-                    <button className="accept-btn" onClick={() => handleAccept(ans._id)}>
-                      <i className="fas fa-check-circle"></i> Accept
-                    </button>
-                  )}
-                  {question.acceptedAnswer === ans._id && (
-                    <span className="accepted-badge">
-                      <i className="fas fa-check-circle"></i> Accepted
-                    </span>
-                  )}
+      {answers.map(ans => (
+          <div key={ans._id} className="answer-card">
+            <div className="answer-body">
+              {/* Answer Content */}
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ans.content) }} />
+
+              <div className="answer-vote-block">
+                <button
+                  className={`vote-icon ${ans.upvotes.includes(user?._id) ? 'active-up' : ''}`}
+                  onClick={() => handleVote(ans._id, 'upvote')}
+                > 👍 </button>
+
+                <div className="vote-count">{ans.upvotes.length - ans.downvotes.length}</div>
+
+                <button
+                  className={`vote-icon ${ans.downvotes.includes(user?._id) ? 'active-down' : ''}`}
+                  onClick={() => handleVote(ans._id, 'downvote')}
+                > 👎 </button>
+              </div>
+
+
+              {/* Footer with profile, date, votes, buttons */}
+              <div className="answer-footer-horizontal">
+                {/* ✅ Avatar + Username */}
+                <div className="question-user-inline">
+                  <img
+                    src={ans.userId?.avatar?.startsWith('/api/')
+                      ? `http://localhost:5000${ans.userId.avatar}`
+                      : ans.userId?.avatar
+                      ? `http://localhost:5000/api/uploads/${ans.userId.avatar}`
+                      : '/avatar.png'}
+                    alt="avatar"
+                    className="avatar small-avatar"
+                  />
+                  <span className="username">{ans.userId?.username || "User"}</span>
                 </div>
+
+                {/* ✅ Date + Votes */}
+                <span className="answer-meta">
+                  📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
+                  <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
+                </span>
+
+                {/* ✅ Edit/Delete for Answer Owner */}
+                {user?._id === ans.userId?._id && (
+                  <div className="answer-controls">
+                    <button onClick={() => navigate(`/edit-answer/${ans._id}`)}>Edit</button>
+                    <button onClick={() => handleDelete('answer', ans._id)}>Delete</button>
+                  </div>
+                )}
+
+                {/* ✅ Accept Answer for Question Owner */}
+                {question.userId?._id === user?._id && !question.acceptedAnswer && (
+                  <button className="accept-btn" onClick={() => handleAccept(ans._id)}>
+                    <i className="fas fa-check-circle"></i> Accept
+                  </button>
+                )}
+
+                {/* ✅ Accepted Badge */}
+                {question.acceptedAnswer === ans._id && (
+                  <span className="accepted-badge">
+                    <i className="fas fa-check-circle"></i> Accepted
+                  </span>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+
 
       <div className="submit-answer">
         <h3>Submit Your Answer</h3>

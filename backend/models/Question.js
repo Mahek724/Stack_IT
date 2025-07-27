@@ -7,6 +7,7 @@ const QuestionSchema = new mongoose.Schema({
   tags: [String],
   imageFileName: { type: String, default: null }, // or imageId for GridFS ObjectId
   views: { type: Number, default: 0},
+  viewedBy: [{ type: String }], 
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
   downvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
   status: { type: String, enum: ['open', 'answered'], default: 'open'},
