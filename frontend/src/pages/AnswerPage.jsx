@@ -21,6 +21,8 @@ const AnswerPage = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [answersVisible, setAnswersVisible] = useState(true);
 
+  
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -65,19 +67,36 @@ useEffect(() => {
       ? `/api/questions/${targetId}/vote`
       : `/api/answers/vote/${targetId}`;
 
-    const payload = isQuestion ? { type } : { type };
-
-    await axios.post(url, payload, {
+    await axios.post(url, { type }, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
 
-    axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
-    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+    // ✅ Refresh vote counts on question + answers
+    const [questionRes, answersRes] = await Promise.all([
+      axios.get(`/api/questions/${id}`),
+      axios.get(`/api/answers/question/${id}`)
+    ]);
+
+    setQuestion(questionRes.data);
+    setAnswers(answersRes.data);
+
+    // ✅ Also fetch updated profile stats
+    const token = localStorage.getItem('token');
+    const res = await axios.get('/api/profile/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // ✅ Dispatch custom event globally with updated stats
+    window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
+      detail: res.data.stats
+    }));
+
   } catch (err) {
     toast.error("Vote failed");
     console.error(err);
   }
 };
+
 
   const handleSubmitAnswer = async () => {
   if (!user) {

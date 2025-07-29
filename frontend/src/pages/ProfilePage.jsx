@@ -15,48 +15,76 @@ const ProfilePage = () => {
   const [showAnswers, setShowAnswers] = useState(false);
   const [showMostViewed, setShowMostViewed] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [votedQuestions, setVotedQuestions] = useState([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState([]);
+
+useEffect(() => {
+  const handleStatsUpdated = (e) => {
+    if (e.detail) {
+      setStats(prev => ({
+        ...prev,
+        ...e.detail
+      }));
+    }
+  };
+
+  window.addEventListener('profileStatsUpdated', handleStatsUpdated);
+  return () => window.removeEventListener('profileStatsUpdated', handleStatsUpdated);
+}, []);
 
   
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
-    const config = { headers: { Authorization: `Bearer ${token}` } };
+  const config = { headers: { Authorization: `Bearer ${token}` } };
 
-    axios.get('/api/profile/me', config)
-      .then(res => {
-        if (res.data && res.data.user) {
-          console.log('Avatar URL:', res.data.user.avatar);
-          setUser(res.data.user);
-          setNewUsername(res.data.user.username || '');
-        }
-      })
-      .catch(err => console.error("Error fetching profile:", err));
+  axios.get('/api/profile/me', config)
+  .then(res => {
+    if (res.data && res.data.user) {
+      setUser(res.data.user);
+      setNewUsername(res.data.user.username || '');
+      setStats(res.data.stats);  // ✅ include totalAnswers now
+    }
+  })
+
+    .catch(err => console.error("Error fetching profile:", err));
 
     axios.get('/api/profile/my-questions', config)
-      .then(res => {
-        const allQuestions = res.data;
-        setQuestions(allQuestions);
+    .then(res => {
+      const allQuestions = res.data;
+      setQuestions(allQuestions);
 
-        const totalVotes = allQuestions.reduce(
-          (sum, q) => sum + (q.upvotes.length - q.downvotes.length),
-          0
-        );
-        const acceptedAnswers = allQuestions.filter(q => q.acceptedAnswer).length;
+      const totalVotes = allQuestions.reduce(
+        (sum, q) => sum + (q.upvotes.length - q.downvotes.length),
+        0
+      );
+      const acceptedAnswers = allQuestions.filter(q => q.acceptedAnswer).length;
 
-        setStats({
-          totalQuestions: allQuestions.length,
-          totalVotes,
-          acceptedAnswers
-        });
-      })
-      .catch(err => console.error("Error fetching questions:", err));
+      // 🛠 Merge stats instead of replacing
+      setStats(prev => ({
+        ...prev,
+        totalQuestions: allQuestions.length,
+        acceptedAnswers
+      }));
+    })
 
-    axios.get('/api/profile/most-viewed', config)
-      .then(res => setMostViewed(res.data))
-      .catch(err => console.error("Error fetching most viewed question", err));
-  }, []);
+    .catch(err => console.error("Error fetching questions:", err));
+
+  axios.get('/api/profile/most-viewed', config)
+    .then(res => setMostViewed(res.data))
+    .catch(err => console.error("Error fetching most viewed question", err));
+
+  axios.get('/api/profile/my-votes', config)
+    .then(res => setVotedQuestions(res.data))
+    .catch(err => console.error("Error fetching vote history", err));
+
+  axios.get('/api/profile/my-answers', config)
+    .then(res => setAnsweredQuestions(res.data))
+    .catch(err => console.error("Error fetching answered questions", err));
+}, []);
+
 
   const handleProfileUpdate = async (selectedFile) => {
   const token = localStorage.getItem('token');
@@ -217,6 +245,12 @@ const ProfilePage = () => {
     <strong>{stats.totalQuestions}</strong>
   </li>
   <li>
+  <i className="fas fa-pen icon"></i>
+  <span>Total Answers:</span>
+  <strong>{stats.totalAnswers}</strong>
+</li>
+
+  <li>
     <i className="fas fa-thumbs-up icon"></i>
     <span>Total Votes:</span>
     <strong>{stats.totalVotes}</strong>
@@ -236,45 +270,53 @@ const ProfilePage = () => {
   <h3>My Activity Summary</h3>
 
   <div className="activity-item">
-    <div
-      className="activity-header"
-      onClick={() => setShowVotes(prev => !prev)}
-    >
-      <strong>Recently Upvoted/Downvoted Questions</strong>
-      <span>{showVotes ? '▲' : '▼'}</span>
-    </div>
-    {showVotes && (
-      <ul className="activity-list">
-        {questions.slice(0, 5).map(q => (
-          <li key={q._id}>
-            <a href={`/questions/${q._id}`}>{q.title}</a>
-          </li>
-        ))}
-      </ul>
-    )}
+  <div
+    className="activity-header"
+    onClick={() => setShowVotes(prev => !prev)}
+  >
+    <strong>Recently Upvoted/Downvoted Questions</strong>
+    <span>{showVotes ? '▲' : '▼'}</span>
   </div>
+  {showVotes && (
+    <ul className="activity-list">
+      {votedQuestions.slice(0, 5).map(vote => (
+        <li key={vote._id}>
+          {vote.questionId ? (
+            <a href={`/questions/${vote.questionId._id}`}>Voted on: {vote.questionId.title}</a>
+          ) : vote.answerId && vote.answerId.questionId ? (
+            <a href={`/questions/${vote.answerId.questionId._id}`}>Voted on: Answer in "{vote.answerId.questionId.title}"</a>
+          ) : (
+            <span>Unknown vote</span>
+          )}
+        </li>
+      ))}
+
+    </ul>
+  )}
+</div>
+
 
   <div className="activity-item">
-    <div
-      className="activity-header"
-      onClick={() => setShowAnswers(prev => !prev)}
-    >
-      <strong>Recently Answered Questions</strong>
-      <span>{showAnswers ? '▲' : '▼'}</span>
-    </div>
-    {showAnswers && (
-      <ul className="activity-list">
-        {questions
-          .filter(q => q.answers && q.answers.length > 0)
-          .slice(0, 5)
-          .map(q => (
-            <li key={q._id}>
-              <a href={`/questions/${q._id}`}>{q.title}</a>
-            </li>
-          ))}
-      </ul>
-    )}
+  <div
+    className="activity-header"
+    onClick={() => setShowAnswers(prev => !prev)}
+  >
+    <strong>Recently Answered Questions</strong>
+    <span>{showAnswers ? '▲' : '▼'}</span>
   </div>
+  {showAnswers && (
+    <ul className="activity-list">
+      {answeredQuestions.slice(0, 5).map(answer => (
+        <li key={answer._id}>
+          <a href={`/questions/${answer.questionId._id}`}>
+            {answer.questionId.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
 
   <div className="activity-item">
     <div

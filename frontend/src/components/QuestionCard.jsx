@@ -8,12 +8,32 @@ const QuestionCard = ({ question }) => {
   const answers = question.answers || [];
   const netVotes = upvotes.length - downvotes.length;
 
+  // Determine question status
+let questionStatus = 'Open';
+if (question.acceptedAnswer) {
+  questionStatus = 'Answered';
+} else if ((question.answers?.length || 0) === 0) {
+  questionStatus = 'Unanswered';
+}
+
+const statusBadge = {
+  Answered: { label: '🔵 Answered', className: 'status-answered' },
+  Open: { label: '🟢 Open', className: 'status-open' },
+  Unanswered: { label: '⚪ Unanswered', className: 'status-unanswered' },
+};
+
+
   return (
     <div className="question-card">
+      <span className={`status-badge ${statusBadge[questionStatus].className}`}>
+        {statusBadge[questionStatus].label}
+      </span>
       <div className="question-header">
         <Link to={`/questions/${question._id}`} className="question-title">
           {question.title}
         </Link>
+        
+
         <div
           className="question-desc"
           dangerouslySetInnerHTML={{

@@ -3,6 +3,7 @@ const router = express.Router();
 const Answer = require('../models/Answer');
 const Question = require('../models/Question');
 const verifyToken = require('../middlewares/verifyToken');
+const Vote = require('../models/Vote');
 
 // Get all answers for a question
 router.get('/question/:questionId', async (req, res) => {
@@ -25,25 +26,50 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Upvote/Downvote
+// Upvote/Downvote
 router.post('/vote/:answerId', verifyToken, async (req, res) => {
-  const { answerId } = req.params;
-  const { type } = req.body; // 'upvote' or 'downvote'
-  const userId = req.user.id;
+  try {
+    const userId = req.user._id;
+    const { type: voteType } = req.body;
+    const answerId = req.params.answerId;
 
-  const answer = await Answer.findById(answerId);
-  if (!answer) return res.status(404).json({ error: 'Answer not found' });
+    const answer = await Answer.findById(answerId);
+    if (!answer) return res.status(404).json({ error: 'Answer not found' });
 
-  if (type === 'upvote') {
-    answer.downvotes.pull(userId);
-    if (!answer.upvotes.includes(userId)) answer.upvotes.push(userId);
-  } else {
-    answer.upvotes.pull(userId);
-    if (!answer.downvotes.includes(userId)) answer.downvotes.push(userId);
+    const opposite = voteType === 'upvote' ? 'downvote' : 'upvote';
+    const hasOpposite = answer[opposite + 's'].includes(userId);
+    if (hasOpposite) {
+      answer[opposite + 's'] = answer[opposite + 's'].filter(id => id.toString() !== userId.toString());
+    }
+
+    const hasVoted = answer[voteType + 's'].includes(userId);
+    if (hasVoted) {
+      answer[voteType + 's'] = answer[voteType + 's'].filter(id => id.toString() !== userId.toString());
+      await Vote.deleteOne({ userId, answerId });
+    } else {
+      answer[voteType + 's'].push(userId);
+      await Vote.findOneAndUpdate(
+        { userId, answerId },
+        { userId, answerId },
+        { upsert: true, new: true }
+      );
+    }
+
+    await answer.save();
+
+    // ✅ NEW: Update totalVotes in User
+    const totalVotes = await Vote.countDocuments({ userId });
+    await User.findByIdAndUpdate(userId, { totalVotes });
+
+    res.json(answer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to vote' });
   }
-
-  await answer.save();
-  res.json({ upvotes: answer.upvotes.length, downvotes: answer.downvotes.length });
 });
+
+
+
 
 // Accept Answer
 router.post('/accept/:answerId', verifyToken, async (req, res) => {

@@ -3,6 +3,7 @@ const router = express.Router();
 const Question = require('../models/Question');
 const verifyToken = require('../middlewares/verifyToken'); // ✅ import middleware
 const Answer = require('../models/Answer'); 
+const Vote = require('../models/Vote');
 
 router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
   try {
@@ -24,6 +25,7 @@ router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
   }
 });
 
+
 router.get('/', async (req, res) => {
   try {
     const { search = '', filter = 'newest', page = 1 } = req.query;
@@ -37,25 +39,37 @@ router.get('/', async (req, res) => {
       ],
     };
 
-    if (filter === 'unanswered') {
-      query.status = 'open';
-    }
-
     let sortOption = { createdAt: -1 };
     if (filter === 'mostvoted') sortOption = { upvotes: -1 };
 
-    const total = await Question.countDocuments(query);
-
-    const questions = await Question.find(query)
+    // 🔍 Get all matching questions first
+    let allQuestions = await Question.find(query)
       .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
       .populate('userId', 'username avatar')
       .lean();
 
-    // ✅ Add answersCount and ensure views field
+    // 🧠 If filter is 'unanswered', manually filter those
+    if (filter === 'unanswered') {
+      const unanswered = [];
+
+      for (const q of allQuestions) {
+        const answerCount = await Answer.countDocuments({ questionId: q._id });
+        if (!q.acceptedAnswer && answerCount === 0) {
+          unanswered.push({
+            ...q,
+            answers: [],
+            views: q.views || 0
+          });
+        }
+      }
+
+      const paginated = unanswered.slice(skip, skip + limit);
+      return res.json({ questions: paginated, total: unanswered.length });
+    }
+
+    // 📊 Add extra fields (answers count & views) to remaining filters
     const questionsWithExtras = await Promise.all(
-      questions.map(async (q) => {
+      allQuestions.slice(skip, skip + limit).map(async (q) => {
         const answersCount = await Answer.countDocuments({ questionId: q._id });
         return {
           ...q,
@@ -65,12 +79,13 @@ router.get('/', async (req, res) => {
       })
     );
 
-    res.json({ questions: questionsWithExtras, total });
+    res.json({ questions: questionsWithExtras, total: allQuestions.length });
   } catch (err) {
     console.error('Error fetching paginated questions:', err);
     res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
+
 
 
 
@@ -202,6 +217,11 @@ router.post('/:id/vote', verifyToken, async (req, res) => {
     }
 
     await question.save();
+    await Vote.findOneAndUpdate(
+      { userId, questionId: question._id },
+      { userId, questionId: question._id },
+      { upsert: true, new: true }
+    );
     const updated = await Question.findById(req.params.id)
       .populate('userId', 'username avatar')
       .lean();
