@@ -17,6 +17,8 @@ const ProfilePage = () => {
   const [showQuestions, setShowQuestions] = useState(false);
   const [votedQuestions, setVotedQuestions] = useState([]);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
+  const [showVoteDetails, setShowVoteDetails] = useState(false);
+
 
 useEffect(() => {
   const handleStatsUpdated = (e) => {
@@ -73,8 +75,9 @@ useEffect(() => {
     .catch(err => console.error("Error fetching questions:", err));
 
   axios.get('/api/profile/most-viewed', config)
-    .then(res => setMostViewed(res.data))
-    .catch(err => console.error("Error fetching most viewed question", err));
+  .then(res => setMostViewed(res.data))
+  .catch(err => console.error("Error fetching most viewed question", err));
+
 
   axios.get('/api/profile/my-votes', config)
     .then(res => setVotedQuestions(res.data))
@@ -215,23 +218,33 @@ useEffect(() => {
           {isEditing ? 'Save' : 'Edit'}
         </button>
       </div>
-      <p>{user.email}</p>
-      <p><strong>Role:</strong> {user.role}</p>
+      <p><strong>Email: </strong>{user.email}</p>
+      <p><strong>Role: </strong> {user.role}</p>
       <p><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric'
 })}</p>
 
-      <p>
-        <strong>Reputation:</strong>
-        <span
-          className="reputation-badge"
-          style={{ color: calculateReputation().color }}
-        >
-          <i className="fas fa-award" /> {calculateReputation().label}
-        </span>
-      </p>
+      <div>
+  <strong>Reputation:</strong>
+  <div className="rep-tooltip">
+    <div className={`rep-badge ${calculateReputation().label.toLowerCase()}`}>
+      <i className="fas fa-medal" />
+      {calculateReputation().label}
+    </div>
+    <span className="rep-tooltip-text">
+      {(() => {
+        const score = stats.totalVotes + (stats.acceptedAnswers * 10);
+        if (score < 50) return `${50 - score} points to reach Contributor!`;
+        if (score < 100) return `${100 - score} points to reach Expert!`;
+        return `Max badge achieved 🎉`;
+      })()}
+    </span>
+  </div>
+</div>
+
+
     </div>
   </section>
 
@@ -249,17 +262,37 @@ useEffect(() => {
   <span>Total Answers:</span>
   <strong>{stats.totalAnswers}</strong>
 </li>
-
-  <li>
-    <i className="fas fa-thumbs-up icon"></i>
-    <span>Total Votes:</span>
-    <strong>{stats.totalVotes}</strong>
-  </li>
-  <li>
+ <li>
     <i className="fas fa-check-circle icon"></i>
     <span>Accepted Answers:</span>
     <strong>{stats.acceptedAnswers}</strong>
   </li>
+
+  <li>
+  <i className="fas fa-thumbs-up icon"></i>
+  <span>Total Votes:</span>
+  <strong>{stats.totalVotes}</strong>
+  <div style={{ marginTop: '0.5rem' }}>
+  <button
+    style={{
+      padding: '6px 12px',
+      background: '#1d4ed8',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '6px',
+      fontSize: '0.9rem',
+      cursor: 'pointer'
+    }}
+    onClick={() => setShowVoteDetails(true)}
+  >
+    Summary
+  </button>
+</div>
+
+</li>
+
+
+ 
 </ul>
 
   </section>
@@ -333,6 +366,7 @@ useEffect(() => {
         </li>
       </ul>
     )}
+
   </div>
 </section>
 
@@ -350,7 +384,15 @@ useEffect(() => {
       {questions.map(q => (
         <div key={q._id} className="question-card">
   <a href={`/questions/${q._id}`} className="q-title">{q.title}</a>
-  <p className="q-desc">{q.description.slice(0, 100)}...</p>
+  <p
+  className="q-desc"
+  dangerouslySetInnerHTML={{
+    __html: q.description.length > 100
+      ? q.description.slice(0, 100) + '...'
+      : q.description
+  }}
+></p>
+
   <div className="q-meta">
     <span><strong>Tags:</strong> {q.tags.map(tag => (
       <span key={tag} style={{
@@ -362,7 +404,15 @@ useEffect(() => {
         color: '#1e40af'
       }}>{tag}</span>
     ))}</span>
-    <span><strong>Date:</strong> {new Date(q.createdAt).toDateString()}</span>
+    <span>
+  <strong>Date:</strong>{' '}
+  {new Date(q.createdAt).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })}
+</span>
+
     <span><strong>Status:</strong>
       <span className="q-status-pill">{q.status}</span>
     </span>
@@ -403,6 +453,23 @@ useEffect(() => {
     Logout
   </button>
 </section>
+{showVoteDetails && (
+  <div className="modal-overlay" onClick={() => setShowVoteDetails(false)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <span className="close-btn" onClick={() => setShowVoteDetails(false)}>×</span>
+      <h2>Voting Summary</h2>
+      <ul className="vote-details-dropdown" style={{ marginTop: '1rem' }}>
+        <li><span style={{fontWeight: 'bold'}}>👍 Total Upvotes:</span> <strong>{stats.totalUpvotes}</strong></li>
+        <li><span style={{fontWeight: 'bold'}}>👎 Total Downvotes:</span> <strong>{stats.totalDownvotes}</strong></li>
+        <li><span>👍 On Questions:</span> <strong>{stats.totalUpvotesOnQuestions}</strong></li>
+        <li><span>👎 On Questions:</span> <strong>{stats.totalDownvotesOnQuestions}</strong></li>
+        <li><span>👍 On Answers:</span> <strong>{stats.totalUpvotesOnAnswers}</strong></li>
+        <li><span>👎 On Answers:</span> <strong>{stats.totalDownvotesOnAnswers}</strong></li>
+      </ul>
+    </div>
+  </div>
+)}
+
 
     </div>
   );

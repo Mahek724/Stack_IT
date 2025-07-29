@@ -4,6 +4,8 @@ const Answer = require('../models/Answer');
 const Question = require('../models/Question');
 const verifyToken = require('../middlewares/verifyToken');
 const Vote = require('../models/Vote');
+const Notification = require('../models/Notification');
+const User = require('../models/User');    
 
 // Get all answers for a question
 router.get('/question/:questionId', async (req, res) => {
@@ -13,17 +15,60 @@ router.get('/question/:questionId', async (req, res) => {
   res.json(answers);
 });
 
-// Post an answer
+
 router.post('/', verifyToken, async (req, res) => {
   const { questionId, content } = req.body;
+
   const newAnswer = new Answer({
     questionId,
     content,
     userId: req.user.id
   });
+
   await newAnswer.save();
+
+  // ✅ Fetch the current user to get username
+  const user = await User.findById(req.user.id);
+
+  // ✅ Notify the question author
+  const question = await Question.findById(questionId).populate('userId', 'username');
+  if (question && question.userId._id.toString() !== req.user.id) {
+    await Notification.create({
+      userId: question.userId._id,
+      type: 'answer',
+      message: `${user.username} answered your question`,
+      link: `/question/${questionId}`
+    });
+  }
+
+  // ✅ Mention notification logic
+  const mentionedUsernames = content.match(/@([\w\s]+)/g);  // supports space
+
+
+  if (mentionedUsernames) {
+    const mentionedSet = new Set(mentionedUsernames.map(m => m.slice(1).trim().toLowerCase()));
+
+for (const name of mentionedSet) {
+  const user = await User.findOne({
+    username: { $regex: new RegExp(`^${name}$`, 'i') }
+  });
+
+  if (user && user._id.toString() !== req.user.id) {
+    await Notification.create({
+      userId: user._id,
+      type: 'mention',
+      message: `${req.user.username} mentioned you in an answer`,
+      link: `/question/${questionId}`
+    });
+  }
+}
+
+  }
+
   res.status(201).json(newAnswer);
 });
+
+
 
 // Upvote/Downvote
 // Upvote/Downvote

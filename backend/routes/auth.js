@@ -168,4 +168,26 @@ router.get('/me', verifyToken, async (req, res) => {
   }
 });
 
+// Search users by username (for @mentions)
+router.get('/search', async (req, res) => {
+  const query = req.query.q;
+  if (!query || query.trim().length === 0) return res.json([]);
+
+  try {
+    const regex = new RegExp(query.replace(/\s+/g, ''), 'i');
+    const users = await User.find().select('username avatar').lean();
+
+    const matchedUsers = users.filter(u =>
+      u.username.replace(/\s+/g, '').toLowerCase().includes(query.replace(/\s+/g, '').toLowerCase())
+    );
+
+    res.json(matchedUsers.slice(0, 5));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+});
+
+
+
 module.exports = router;

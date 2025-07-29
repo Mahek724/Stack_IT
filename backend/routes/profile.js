@@ -14,47 +14,68 @@ const Vote = require('../models/Vote');
 router.get('/me', verifyToken, async (req, res) => {
   console.log("Decoded userId:", req.userId);
 
-  const user = await User.findById(req.userId);
-  const questions = await Question.find({ userId: req.userId });
-  const totalVotesOnQuestions = questions.reduce(
-    (sum, q) => sum + q.upvotes.length - q.downvotes.length,
-    0
-  );
+  try {
+    const user = await User.findById(req.userId);
+    const questions = await Question.find({ userId: req.userId });
+    const answers = await Answer.find({ userId: req.userId });
 
-  const answers = await Answer.find({ userId: req.userId });
-  const totalVotesOnAnswers = answers.reduce(
-    (sum, a) => sum + a.upvotes.length - a.downvotes.length,
-    0
-  );
+    // ✅ Split votes by type
+    const totalUpvotesOnQuestions = questions.reduce((sum, q) => sum + q.upvotes.length, 0);
+    const totalDownvotesOnQuestions = questions.reduce((sum, q) => sum + q.downvotes.length, 0);
+    const totalUpvotesOnAnswers = answers.reduce((sum, a) => sum + a.upvotes.length, 0);
+    const totalDownvotesOnAnswers = answers.reduce((sum, a) => sum + a.downvotes.length, 0);
 
-  const totalVotes = totalVotesOnQuestions + totalVotesOnAnswers;
+    const totalUpvotes = totalUpvotesOnQuestions + totalUpvotesOnAnswers;
+    const totalDownvotes = totalDownvotesOnQuestions + totalDownvotesOnAnswers;
+    const totalVotes = totalUpvotes - totalDownvotes;
 
-  const accepted = questions.filter(q => q.acceptedAnswer).length;
+    const accepted = questions.filter(q => q.acceptedAnswer).length;
 
-  // ✅ Count total answers
-  const totalAnswers = await Answer.countDocuments({ userId: req.userId });
+    res.json({
+      user,
+      stats: {
+        totalQuestions: questions.length,
+        totalAnswers: answers.length,
+        acceptedAnswers: accepted,
+        totalVotes, // Net votes
 
-  // ❌ Currently this block is open and will throw runtime errors
-res.json({
-  user,
-  stats: {
-    totalQuestions: questions.length,
-    totalAnswers: answers.length,
-    totalVotes,
-    acceptedAnswers: accepted
+        // ✅ Send everything
+        totalUpvotes,
+        totalDownvotes,
+        totalUpvotesOnQuestions,
+        totalDownvotesOnQuestions,
+        totalUpvotesOnAnswers,
+        totalDownvotesOnAnswers
+      }
+    });
+  } catch (error) {
+    console.error('Error in /me route:', error);
+    res.status(500).json({ error: 'Failed to load profile stats' });
   }
-});  // ✅ ✅ ✅ ADD THIS to close route
-
-});  // ✅ <- YOU MISSED THIS (close the /me route)
-
-
+});
 
 
 // Get My Questions
 router.get('/my-questions', verifyToken, async (req, res) => {
-  const questions = await Question.find({ userId: req.userId }).sort({ createdAt: -1 });
-  res.json(questions);
+  try {
+    const questions = await Question.find({ userId: req.userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const updatedQuestions = questions.map(q => {
+      return {
+        ...q,
+        status: q.acceptedAnswer ? 'answered' : 'open'
+      };
+    });
+
+    res.json(updatedQuestions);
+  } catch (err) {
+    console.error("❌ Error in /my-questions:", err);
+    res.status(500).json({ error: 'Failed to fetch your questions' });
+  }
 });
+
 
 // Update Username + Avatar
 // Update Username + Avatar (GridFS only, no multer)
@@ -98,12 +119,20 @@ router.get('/my-votes', verifyToken, async (req, res) => {
 router.get('/most-viewed', verifyToken, async (req, res) => {
   try {
     const topQuestion = await Question.findOne({ userId: req.userId })
-      .sort({ views: -1 });
+      .sort({ views: -1 })
+      .lean(); // optional for performance
+
+    if (!topQuestion) {
+      return res.json(null); // send null explicitly
+    }
+
     res.json(topQuestion);
   } catch (err) {
+    console.error("❌ Error fetching most viewed question:", err);
     res.status(500).json({ error: 'Failed to fetch most viewed question' });
   }
 });
+
 
 
 // Logout All Devices (invalidate tokens)

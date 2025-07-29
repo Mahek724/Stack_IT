@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
 import '../assets/css/navbar.css';
+import Notification from '../components/Notification';
 import axios from 'axios';
 
 const UserNavbar = () => {
@@ -36,34 +37,33 @@ setUser(res.data.user);
         <Link to="/" className="brand">Stack_IT</Link>
       </div>
       <div className="nav-right">
-        <Link to="/">Home</Link>
-        <span className="icon" aria-label="Notifications">
-          <FaBell />
-        </span>
-        <Link to="/profile" className="icon profile-icon" aria-label="Profile">
-          {user ? (
-  <img
-    src={
-      user.avatar
-        ? user.avatar.startsWith('/api/')
-          ? `http://localhost:5000${user.avatar}`
-          : `http://localhost:5000/api/uploads/${user.avatar}`
-        : '/default-avatar.png' // ✅ fallback to default image
-    }
-    alt="Profile"
-    className="navbar-avatar"
-    onError={(e) => {
-      e.target.onerror = null;
-      e.target.src = '/avatar.png'; // ✅ fallback if broken image
-    }}
-  />
-) : (
-  <FaUserCircle />
-)}
+          <Link to="/">Home</Link>
 
+          <Notification /> {/* ✅ Renders dynamic bell with dropdown */}
 
-        </Link>
-      </div>
+          <Link to="/profile" className="icon profile-icon" aria-label="Profile">
+            {user ? (
+              <img
+                src={
+                  user.avatar
+                    ? user.avatar.startsWith('/api/')
+                      ? `http://localhost:5000${user.avatar}`
+                      : `http://localhost:5000/api/uploads/${user.avatar}`
+                    : '/default-avatar.png'
+                }
+                alt="Profile"
+                className="navbar-avatar"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/avatar.png';
+                }}
+              />
+            ) : (
+              <FaUserCircle />
+            )}
+          </Link>
+        </div>
+
     </nav>
   );
 };

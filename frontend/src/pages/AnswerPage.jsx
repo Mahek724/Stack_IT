@@ -1,8 +1,7 @@
-// src/pages/AnswerPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { EditorState, convertToRaw } from 'draft-js';
+import { EditorState, convertToRaw, Modifier } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -19,9 +18,13 @@ const AnswerPage = () => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [user, setUser] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [answersVisible, setAnswersVisible] = useState(true);
+  const [mentionSuggestions, setMentionSuggestions] = useState([]);
+  const [mentionActive, setMentionActive] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
 
-  
+  // Ref for contenteditable area in Draft.js
+  const editorContentRef = useRef();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -33,101 +36,105 @@ const AnswerPage = () => {
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  const guestIdKey = 'guestId';
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.mention-dropdown')) {
+        setMentionActive(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  let headers = {};
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const guestIdKey = 'guestId';
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else {
-    let guestId = localStorage.getItem(guestIdKey);
-    if (!guestId) {
-      guestId = `guest_${Math.random().toString(36).substring(2, 15)}`;
-      localStorage.setItem(guestIdKey, guestId);
+    let headers = {};
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      let guestId = localStorage.getItem(guestIdKey);
+      if (!guestId) {
+        guestId = `guest_${Math.random().toString(36).substring(2, 15)}`;
+        localStorage.setItem(guestIdKey, guestId);
+      }
+      headers['x-guest-id'] = guestId;
     }
-    headers['x-guest-id'] = guestId;
-  }
 
-  axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
-  axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
-}, [id]);
-
+    axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
+    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+  }, [id]);
 
   const handleVote = async (targetId, type, isQuestion = false) => {
-  if (!user) {
-    toast.info("Login required to vote");
-    navigate('/login');
-    return;
-  }
+    if (!user) {
+      toast.info("Login required to vote");
+      navigate('/login');
+      return;
+    }
 
-  try {
-    const url = isQuestion
-      ? `/api/questions/${targetId}/vote`
-      : `/api/answers/vote/${targetId}`;
+    try {
+      const url = isQuestion
+        ? `/api/questions/${targetId}/vote`
+        : `/api/answers/vote/${targetId}`;
 
-    await axios.post(url, { type }, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
+      await axios.post(url, { type }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
 
-    // ✅ Refresh vote counts on question + answers
-    const [questionRes, answersRes] = await Promise.all([
-      axios.get(`/api/questions/${id}`),
-      axios.get(`/api/answers/question/${id}`)
-    ]);
+      const [questionRes, answersRes] = await Promise.all([
+        axios.get(`/api/questions/${id}`),
+        axios.get(`/api/answers/question/${id}`)
+      ]);
 
-    setQuestion(questionRes.data);
-    setAnswers(answersRes.data);
+      setQuestion(questionRes.data);
+      setAnswers(answersRes.data);
 
-    // ✅ Also fetch updated profile stats
-    const token = localStorage.getItem('token');
-    const res = await axios.get('/api/profile/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/profile/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    // ✅ Dispatch custom event globally with updated stats
-    window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
-      detail: res.data.stats
-    }));
+      window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
+        detail: res.data.stats
+      }));
 
-  } catch (err) {
-    toast.error("Vote failed");
-    console.error(err);
-  }
-};
-
+    } catch (err) {
+      toast.error("Vote failed");
+      console.error(err);
+    }
+  };
 
   const handleSubmitAnswer = async () => {
-  if (!user) {
-    toast.error("Please log in to submit an answer.");
-    navigate('/login'); // 🔁 redirect guest to login page
-    return;
-  }
+    if (!user) {
+      toast.error("Please log in to submit an answer.");
+      navigate('/login');
+      return;
+    }
 
-  const contentState = editorState.getCurrentContent();
-  const rawContent = convertToRaw(contentState);
-  const isEmpty = !rawContent.blocks.some(block => block.text.trim() !== "");
+    const contentState = editorState.getCurrentContent();
+    const rawContent = convertToRaw(contentState);
+    const isEmpty = !rawContent.blocks.some(block => block.text.trim() !== "");
 
-  if (isEmpty) {
-    toast.error("Answer content cannot be empty.");
-    return;
-  }
+    if (isEmpty) {
+      toast.error("Answer content cannot be empty.");
+      return;
+    }
 
-  const content = draftToHtml(rawContent);
+    const content = draftToHtml(rawContent);
 
-  try {
-    await axios.post('/api/answers', { questionId: id, content }, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    toast.success("Answer submitted successfully!");
-    setEditorState(EditorState.createEmpty());
-    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
-  } catch (err) {
-    toast.error("Failed to submit your answer. Try again.");
-  }
-};
-
+    try {
+      await axios.post('/api/answers', { questionId: id, content }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      toast.success("Answer submitted successfully!");
+      setEditorState(EditorState.createEmpty());
+      axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+    } catch (err) {
+      toast.error("Failed to submit your answer. Try again.");
+    }
+  };
 
   const handleAccept = async (answerId) => {
     await axios.post(`/api/answers/accept/${answerId}`, {}, {
@@ -139,33 +146,90 @@ useEffect(() => {
   };
 
   const handleDelete = async (type, targetId) => {
-  if (!window.confirm("Are you sure you want to delete?")) return;
-  const url = type === 'question'
-    ? `/api/questions/${targetId}`
-    : `/api/answers/${targetId}`;
+    if (!window.confirm("Are you sure you want to delete?")) return;
+    const url = type === 'question'
+      ? `/api/questions/${targetId}`
+      : `/api/answers/${targetId}`;
 
-  try {
-    await axios.delete(url, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
+    try {
+      await axios.delete(url, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
 
-    if (type === 'question') {
-      toast.success("Question deleted successfully!");
-      navigate('/');
-    } else {
-      toast.success("Answer deleted successfully!");
-      axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+      if (type === 'question') {
+        toast.success("Question deleted successfully!");
+        navigate('/');
+      } else {
+        toast.success("Answer deleted successfully!");
+        axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
+      }
+    } catch (err) {
+      toast.error("Failed to delete.");
+      console.error(err);
     }
-  } catch (err) {
-    toast.error("Failed to delete.");
-    console.error(err);
-  }
-};
-
+  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied!");
+  };
+
+  // ************* Mention Dropdown Positioning Logic *************
+  const handleEditorChange = (newState) => {
+    setEditorState(newState);
+
+    const content = newState.getCurrentContent();
+    const selection = newState.getSelection();
+    const block = content.getBlockForKey(selection.getStartKey());
+    const text = block.getText();
+    const anchorOffset = selection.getAnchorOffset();
+    const charBeforeCursor = text.slice(0, anchorOffset);
+
+    const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
+
+    if (match) {
+      const query = match[1].trim();
+
+      axios.get(`/api/auth/search?q=${query}`)
+        .then(res => {
+          setMentionSuggestions(res.data);
+          setMentionActive(true);
+          setMentionQuery(query);
+
+          // Position dropdown at caret
+          setTimeout(() => {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+              const range = sel.getRangeAt(0).cloneRange();
+              const marker = document.createElement('span');
+              marker.id = 'caret-marker';
+              marker.style.opacity = '0';
+              marker.appendChild(document.createTextNode('\u200b'));
+              range.insertNode(marker);
+
+              const rect = marker.getBoundingClientRect();
+                if (editorContentRef.current && typeof editorContentRef.current.getBoundingClientRect === 'function') {
+                  const editorRect = editorContentRef.current.getBoundingClientRect();
+
+                  setDropdownPos({
+                    top: rect.top - editorRect.top + 24,
+                    left: rect.left - editorRect.left,
+                  });
+                }
+
+              marker.parentNode.removeChild(marker);
+            }
+          }, 0);
+
+        })
+        .catch(() => {
+          setMentionSuggestions([]);
+          setMentionActive(false);
+        });
+    } else {
+      setMentionSuggestions([]);
+      setMentionActive(false);
+    }
   };
 
   if (!question) return <div className="loading">Loading...</div>;
@@ -179,8 +243,8 @@ useEffect(() => {
   const questionStatus = question.acceptedAnswer
     ? 'Answered'
     : answers.length === 0
-    ? 'Unanswered'
-    : 'Open';
+      ? 'Unanswered'
+      : 'Open';
 
   return (
     <div className="answer-page-container">
@@ -190,24 +254,23 @@ useEffect(() => {
 
       <div className="question-box">
         <div className="question-header-top">
-  <div className="question-actions-left">
-    <span className={`status-badge ${statusBadge[questionStatus].className}`}>
-      {statusBadge[questionStatus].label}
-    </span>
-    {user?._id === question.userId?._id && (
-      <>
-        <button onClick={() => navigate(`/edit-question/${question._id}`)} className="edit-btn">✏️ Edit</button>
-        <button onClick={() => handleDelete('question', question._id)} className="delete-btn">🗑️ Delete</button>
-      </>
-    )}
-  </div>
-  <div className="question-actions-right">
-    <button className="share-link-btn" onClick={handleShare}>🔗 Share</button>
-  </div>
-</div>
+          <div className="question-actions-left">
+            <span className={`status-badge ${statusBadge[questionStatus].className}`}>
+              {statusBadge[questionStatus].label}
+            </span>
+            {user?._id === question.userId?._id && (
+              <>
+                <button onClick={() => navigate(`/edit-question/${question._id}`)} className="edit-btn">✏️ Edit</button>
+                <button onClick={() => handleDelete('question', question._id)} className="delete-btn">🗑️ Delete</button>
+              </>
+            )}
+          </div>
+          <div className="question-actions-right">
+            <button className="share-link-btn" onClick={handleShare}>🔗 Share</button>
+          </div>
+        </div>
 
-<h2 className="question-heading">{question.title}</h2>
-
+        <h2 className="question-heading">{question.title}</h2>
 
         <div className="question-desc"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.description) }}
@@ -257,8 +320,8 @@ useEffect(() => {
                 src={question.userId?.avatar?.startsWith('/api/')
                   ? `http://localhost:5000${question.userId.avatar}`
                   : question.userId?.avatar
-                  ? `http://localhost:5000/api/uploads/${question.userId.avatar}`
-                  : '/avatar.png'}
+                    ? `http://localhost:5000/api/uploads/${question.userId.avatar}`
+                    : '/avatar.png'}
                 alt="avatar"
                 className="avatar small-avatar"
               />
@@ -269,83 +332,131 @@ useEffect(() => {
       </div>
 
       {answers.map(ans => (
-          <div key={ans._id} className="answer-card">
-            <div className="answer-body">
-              {/* Answer Content */}
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ans.content) }} />
+        <div key={ans._id} className="answer-card">
+          <div className="answer-body">
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ans.content) }} />
 
-              <div className="answer-vote-block">
-                <button
-                  className={`vote-icon ${ans.upvotes.includes(user?._id) ? 'active-up' : ''}`}
-                  onClick={() => handleVote(ans._id, 'upvote')}
-                > 👍 </button>
+            <div className="answer-vote-block">
+              <button
+                className={`vote-icon ${ans.upvotes.includes(user?._id) ? 'active-up' : ''}`}
+                onClick={() => handleVote(ans._id, 'upvote')}
+              > 👍 </button>
 
-                <div className="vote-count">{ans.upvotes.length - ans.downvotes.length}</div>
+              <div className="vote-count">{ans.upvotes.length - ans.downvotes.length}</div>
 
-                <button
-                  className={`vote-icon ${ans.downvotes.includes(user?._id) ? 'active-down' : ''}`}
-                  onClick={() => handleVote(ans._id, 'downvote')}
-                > 👎 </button>
-              </div>
+              <button
+                className={`vote-icon ${ans.downvotes.includes(user?._id) ? 'active-down' : ''}`}
+                onClick={() => handleVote(ans._id, 'downvote')}
+              > 👎 </button>
+            </div>
 
-
-              {/* Footer with profile, date, votes, buttons */}
-              <div className="answer-footer-horizontal">
-                {/* ✅ Avatar + Username */}
-                <div className="question-user-inline">
-                  <img
-                    src={ans.userId?.avatar?.startsWith('/api/')
-                      ? `http://localhost:5000${ans.userId.avatar}`
-                      : ans.userId?.avatar
+            <div className="answer-footer-horizontal">
+              <div className="question-user-inline">
+                <img
+                  src={ans.userId?.avatar?.startsWith('/api/')
+                    ? `http://localhost:5000${ans.userId.avatar}`
+                    : ans.userId?.avatar
                       ? `http://localhost:5000/api/uploads/${ans.userId.avatar}`
                       : '/avatar.png'}
-                    alt="avatar"
-                    className="avatar small-avatar"
-                  />
-                  <span className="username">{ans.userId?.username || "User"}</span>
-                </div>
-
-                {/* ✅ Date + Votes */}
-                <span className="answer-meta">
-                  📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
-                  <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
-                </span>
-
-                {/* ✅ Edit/Delete for Answer Owner */}
-                {user?._id === ans.userId?._id && (
-                  <div className="answer-controls">
-                    <button onClick={() => navigate(`/edit-answer/${ans._id}`)}>Edit</button>
-                    <button onClick={() => handleDelete('answer', ans._id)}>Delete</button>
-                  </div>
-                )}
-
-                {/* ✅ Accept Answer for Question Owner */}
-                {question.userId?._id === user?._id && !question.acceptedAnswer && (
-                  <button className="accept-btn" onClick={() => handleAccept(ans._id)}>
-                    <i className="fas fa-check-circle"></i> Accept
-                  </button>
-                )}
-
-                {/* ✅ Accepted Badge */}
-                {question.acceptedAnswer === ans._id && (
-                  <span className="accepted-badge">
-                    <i className="fas fa-check-circle"></i> Accepted
-                  </span>
-                )}
+                  alt="avatar"
+                  className="avatar small-avatar"
+                />
+                <span className="username">{ans.userId?.username || "User"}</span>
               </div>
+
+              <span className="answer-meta">
+                📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
+                <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
+              </span>
+
+              {user?._id === ans.userId?._id && (
+                <div className="answer-controls">
+                  <button onClick={() => navigate(`/edit-answer/${ans._id}`)}>Edit</button>
+                  <button onClick={() => handleDelete('answer', ans._id)}>Delete</button>
+                </div>
+              )}
+
+              {question.userId?._id === user?._id && !question.acceptedAnswer && (
+                <button className="accept-btn" onClick={() => handleAccept(ans._id)}>
+                  <i className="fas fa-check-circle"></i> Accept
+                </button>
+              )}
+
+              {question.acceptedAnswer === ans._id && (
+                <span className="accepted-badge">
+                  <i className="fas fa-check-circle"></i> Accepted
+                </span>
+              )}
             </div>
           </div>
-        ))}
-
+        </div>
+      ))}
 
       <div className="submit-answer">
         <h3>Submit Your Answer</h3>
-        <Editor
-          editorState={editorState}
-          onEditorStateChange={setEditorState}
-          wrapperClassName="rich-editor-wrapper"
-          editorClassName="rich-editor"
-        />
+        <div style={{ position: 'relative' }}>
+          <Editor
+            editorState={editorState}
+            onEditorStateChange={handleEditorChange}
+            wrapperClassName="rich-editor-wrapper"
+            editorClassName="rich-editor"
+            editorRef={(ref) => {
+              // react-draft-wysiwyg passes this ref to Draft.js Editor
+              if (ref) editorContentRef.current = ref.editor;
+            }}
+          />
+
+          {/* Mention Dropdown */}
+          {mentionActive && mentionSuggestions.length > 0 && (
+            <div
+              className="mention-dropdown"
+              style={{
+                position: 'absolute',
+                top: dropdownPos.top,
+                left: dropdownPos.left,
+                zIndex: 9999
+              }}
+            >
+              {mentionSuggestions.map((user, idx) => (
+                <div
+                  key={idx}
+                  className="mention-option"
+                  onClick={() => {
+                    const contentState = editorState.getCurrentContent();
+                    const selection = editorState.getSelection();
+                    const block = contentState.getBlockForKey(selection.getStartKey());
+                    const text = block.getText().slice(0, selection.getAnchorOffset());
+                    const match = text.match(/@([a-zA-Z0-9\s]*)$/);
+                    if (!match) return;
+
+                    const start = selection.getAnchorOffset() - match[0].length;
+                    const end = selection.getAnchorOffset();
+
+                    const newContentState = Modifier.replaceText(
+                      contentState,
+                      selection.merge({ anchorOffset: start, focusOffset: end }),
+                      `@${user.username} `
+                    );
+
+                    const newEditorState = EditorState.push(editorState, newContentState, 'insert-characters');
+                    setEditorState(EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter()));
+                    setMentionActive(false);
+                  }}
+                >
+                  <img
+                    src={user.avatar?.startsWith('/api/')
+                      ? `http://localhost:5000${user.avatar}`
+                      : user.avatar || '/avatar.png'}
+                    alt="avatar"
+                    className="avatar small-avatar"
+                  />
+                  @{user.username}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button className="preview-toggle-btn" onClick={() => setShowPreview(prev => !prev)}>
           {showPreview ? "Hide Preview" : "Show Preview"}
         </button>

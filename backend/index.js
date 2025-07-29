@@ -15,6 +15,7 @@ const questionRoutes = require('./routes/questions');
 const uploadRoutes = require('./routes/upload');
 const profileRoutes = require('./routes/profile');
 const answerRoutes = require('./routes/answerRoutes');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 app.use(express.json());
@@ -53,6 +54,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api', uploadRoutes);  
 app.use('/api/answers', answerRoutes);
+app.use('/api/notifications', notificationRoutes);
 // must come after DB init
 
 // ✅ Static folder

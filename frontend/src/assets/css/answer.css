@@ -341,6 +341,7 @@
   border-radius: 10px;
   background-color: #fff;
   min-height: 300px;
+  position: relative;
 }
 
 .preview-toggle-btn {
@@ -428,4 +429,36 @@
   align-items: center;
   gap: 0.2rem;
   margin: 0.6rem 0;
+}
+.mention-dropdown {
+  position: absolute;
+  z-index: 999;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  width: 250px;
+  padding: 5px 0;
+  margin-left: 60px;
+  margin-top: 120px;
+}
+
+.mention-option {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.mention-option:hover {
+  background-color: #f0f0f0;
+}
+
+.mention-option img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
