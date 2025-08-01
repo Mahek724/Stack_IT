@@ -226,6 +226,8 @@
   gap: 8px;
 }
 
+
+
 .small-avatar {
   width: 28px;
   height: 28px;
@@ -441,8 +443,8 @@
   overflow-y: auto;
   width: 250px;
   padding: 5px 0;
-  margin-left: 60px;
-  margin-top: 120px;
+  /* margin-left: 60px; */
+  /* margin-top: 120px; */
 }
 
 .mention-option {
@@ -461,4 +463,15 @@
   height: 24px;
   border-radius: 50%;
   margin-right: 8px;
+}
+.highlighted {
+  border: 2px solid #E50046;
+  background-color: #fff9e6;
+  transition: background-color 0.3s, border 0.3s;
+}
+.mention-highlight {
+  color: #0077cc;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 500;
 }

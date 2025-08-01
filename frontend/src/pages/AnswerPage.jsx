@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { EditorState, convertToRaw, Modifier } from 'draft-js';
@@ -9,6 +9,9 @@ import '../assets/css/answer.css';
 import DOMPurify from 'dompurify';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useLocation } from 'react-router-dom';
+
+
 
 const AnswerPage = () => {
   const { id } = useParams();
@@ -22,6 +25,7 @@ const AnswerPage = () => {
   const [mentionActive, setMentionActive] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const location = useLocation();
 
   // Ref for contenteditable area in Draft.js
   const editorContentRef = useRef();
@@ -66,6 +70,22 @@ const AnswerPage = () => {
     axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
+
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const answerId = params.get("answerId");
+  if (answerId) {
+    setTimeout(() => {
+      const el = document.getElementById(`answer-${answerId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlighted");
+        setTimeout(() => el.classList.remove("highlighted"), 2500);
+      }
+    }, 400); // delay to ensure answers are loaded
+  }
+}, [answers]);
+
 
   const handleVote = async (targetId, type, isQuestion = false) => {
     if (!user) {
@@ -175,51 +195,47 @@ const AnswerPage = () => {
   };
 
   // ************* Mention Dropdown Positioning Logic *************
-  const handleEditorChange = (newState) => {
-    setEditorState(newState);
+  const handleEditorChange = useCallback((newState) => {
+  setEditorState(newState);
 
-    const content = newState.getCurrentContent();
-    const selection = newState.getSelection();
-    const block = content.getBlockForKey(selection.getStartKey());
-    const text = block.getText();
-    const anchorOffset = selection.getAnchorOffset();
-    const charBeforeCursor = text.slice(0, anchorOffset);
+  const content = newState.getCurrentContent();
+  const selection = newState.getSelection();
+  const block = content.getBlockForKey(selection.getStartKey());
+  const text = block.getText();
+  const anchorOffset = selection.getAnchorOffset();
+  const charBeforeCursor = text.slice(0, anchorOffset);
 
-    const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
+  const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
 
-    if (match) {
-      const query = match[1].trim();
+  if (match) {
+    const query = match[1].trim();
 
-      axios.get(`/api/auth/search?q=${query}`)
-        .then(res => {
-          setMentionSuggestions(res.data);
-          setMentionActive(true);
-          setMentionQuery(query);
+    axios.get(`/api/auth/search?q=${query}`)
+      .then(res => {
+        setMentionSuggestions(res.data);
+        setMentionActive(true);
+        setMentionQuery(query);
+
 
           // Position dropdown at caret
           setTimeout(() => {
-            const sel = window.getSelection();
-            if (sel.rangeCount > 0) {
-              const range = sel.getRangeAt(0).cloneRange();
-              const marker = document.createElement('span');
-              marker.id = 'caret-marker';
-              marker.style.opacity = '0';
-              marker.appendChild(document.createTextNode('\u200b'));
-              range.insertNode(marker);
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
 
-              const rect = marker.getBoundingClientRect();
-                if (editorContentRef.current && typeof editorContentRef.current.getBoundingClientRect === 'function') {
-                  const editorRect = editorContentRef.current.getBoundingClientRect();
+  const range = selection.getRangeAt(0).cloneRange();
+  const rect = range.getBoundingClientRect();
+  const editorRect = editorContentRef.current?.getBoundingClientRect();
 
-                  setDropdownPos({
-                    top: rect.top - editorRect.top + 24,
-                    left: rect.left - editorRect.left,
-                  });
-                }
+  if (rect && editorRect) {
+    setDropdownPos({
+      top: rect.top - editorRect.top + 24,
+      left: rect.left - editorRect.left,
+    });
+  }
+}, 0);
 
-              marker.parentNode.removeChild(marker);
-            }
-          }, 0);
+
+
 
         })
         .catch(() => {
@@ -230,7 +246,7 @@ const AnswerPage = () => {
       setMentionSuggestions([]);
       setMentionActive(false);
     }
-  };
+  }, []);
 
   if (!question) return <div className="loading">Loading...</div>;
 
@@ -245,6 +261,57 @@ const AnswerPage = () => {
     : answers.length === 0
       ? 'Unanswered'
       : 'Open';
+
+
+    const insertMention = (user) => {
+  const contentState = editorState.getCurrentContent();
+  const selection = editorState.getSelection();
+  const block = contentState.getBlockForKey(selection.getStartKey());
+  const text = block.getText().slice(0, selection.getAnchorOffset());
+  const match = text.match(/@([a-zA-Z0-9\s]*)$/);
+  if (!match) return;
+
+  const start = selection.getStartOffset() - match[0].length;
+  const end = selection.getStartOffset();
+
+  const newSelection = selection.merge({
+    anchorOffset: start,
+    focusOffset: end,
+  });
+
+  const newContentState = Modifier.replaceText(
+    contentState,
+    newSelection,
+    `@${user.username} `,
+    editorState.getCurrentInlineStyle()
+  );
+
+  const newEditorState = EditorState.push(
+    editorState,
+    newContentState,
+    'insert-characters'
+  );
+
+  setEditorState(
+  EditorState.forceSelection(
+    EditorState.push(
+      editorState,
+      newContentState,
+      'insert-characters'
+    ),
+    newContentState.getSelectionAfter()
+  )
+);
+
+  setMentionActive(false);
+};
+
+// Highlight @mentions with a span
+const highlightMentions = (html) => {
+  return html.replace(/@([\w]+)/g, '<span class="mention-highlight">@$1</span>');
+};
+
+
 
   return (
     <div className="answer-page-container">
@@ -332,9 +399,11 @@ const AnswerPage = () => {
       </div>
 
       {answers.map(ans => (
-        <div key={ans._id} className="answer-card">
+          <div key={ans._id} id={`answer-${ans._id}`} className="answer-card">
+
           <div className="answer-body">
-            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ans.content) }} />
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlightMentions(ans.content)) }} />
+
 
             <div className="answer-vote-block">
               <button
@@ -419,39 +488,23 @@ const AnswerPage = () => {
             >
               {mentionSuggestions.map((user, idx) => (
                 <div
-                  key={idx}
-                  className="mention-option"
-                  onClick={() => {
-                    const contentState = editorState.getCurrentContent();
-                    const selection = editorState.getSelection();
-                    const block = contentState.getBlockForKey(selection.getStartKey());
-                    const text = block.getText().slice(0, selection.getAnchorOffset());
-                    const match = text.match(/@([a-zA-Z0-9\s]*)$/);
-                    if (!match) return;
+  key={user._id}
+  className="mention-suggestion"
+  onMouseDown={(e) => {
+    e.preventDefault(); // Prevent editor from losing focus
+    insertMention(user); // Call the function above
+  }}
+>
+  <img
+    src={user.avatar?.startsWith('/api/')
+      ? `http://localhost:5000${user.avatar}`
+      : user.avatar || '/avatar.png'}
+    alt="avatar"
+    className="avatar small-avatar"
+  />
+  @{user.username}
+</div>
 
-                    const start = selection.getAnchorOffset() - match[0].length;
-                    const end = selection.getAnchorOffset();
-
-                    const newContentState = Modifier.replaceText(
-                      contentState,
-                      selection.merge({ anchorOffset: start, focusOffset: end }),
-                      `@${user.username} `
-                    );
-
-                    const newEditorState = EditorState.push(editorState, newContentState, 'insert-characters');
-                    setEditorState(EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter()));
-                    setMentionActive(false);
-                  }}
-                >
-                  <img
-                    src={user.avatar?.startsWith('/api/')
-                      ? `http://localhost:5000${user.avatar}`
-                      : user.avatar || '/avatar.png'}
-                    alt="avatar"
-                    className="avatar small-avatar"
-                  />
-                  @{user.username}
-                </div>
               ))}
             </div>
           )}

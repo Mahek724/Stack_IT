@@ -28,7 +28,8 @@ router.post('/', verifyToken, async (req, res) => {
   await newAnswer.save();
 
   // ✅ Fetch the current user to get username
-  const user = await User.findById(req.user.id);
+  const answerAuthor = await User.findById(req.user.id);
+
 
   // ✅ Notify the question author
   const question = await Question.findById(questionId).populate('userId', 'username');
@@ -36,34 +37,41 @@ router.post('/', verifyToken, async (req, res) => {
     await Notification.create({
       userId: question.userId._id,
       type: 'answer',
-      message: `${user.username} answered your question`,
-      link: `/question/${questionId}`
+      message: `${answerAuthor.username} answered your question`,
+
+      link: `/questions/${questionId}?answerId=${newAnswer._id}`
+
     });
   }
 
   // ✅ Mention notification logic
-  const mentionedUsernames = content.match(/@([\w\s]+)/g);  // supports space
 
+const mentionedUsernames = content.match(/@([\w\s]+)/g);
+if (mentionedUsernames) {
+  const mentionedSet = new Set(
+    mentionedUsernames.map((m) => m.slice(1).trim().toLowerCase())
+  );
 
-  if (mentionedUsernames) {
-    const mentionedSet = new Set(mentionedUsernames.map(m => m.slice(1).trim().toLowerCase()));
-
-for (const name of mentionedSet) {
-  const user = await User.findOne({
-    username: { $regex: new RegExp(`^${name}$`, 'i') }
-  });
-
-  if (user && user._id.toString() !== req.user.id) {
-    await Notification.create({
-      userId: user._id,
-      type: 'mention',
-      message: `${req.user.username} mentioned you in an answer`,
-      link: `/question/${questionId}`
+  for (const name of mentionedSet) {
+    const mentionedUser = await User.findOne({
+      username: { $regex: new RegExp(`^${name}$`, 'i') },
     });
+
+    if (
+      mentionedUser &&
+      mentionedUser._id.toString() !== req.user.id // don't notify self
+    ) {
+      await Notification.create({
+        userId: mentionedUser._id,
+        type: 'mention',
+        message: `${answerAuthor.username} mentioned you in an answer`,
+        link: `/questions/${questionId}`
+      });
+    }
   }
 }
 
-  }
+
 
   res.status(201).json(newAnswer);
 });
