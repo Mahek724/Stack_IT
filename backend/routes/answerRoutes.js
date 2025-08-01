@@ -15,7 +15,7 @@ router.get('/question/:questionId', async (req, res) => {
   res.json(answers);
 });
 
-
+// Create a new answer
 router.post('/', verifyToken, async (req, res) => {
   const { questionId, content } = req.body;
 
@@ -27,11 +27,11 @@ router.post('/', verifyToken, async (req, res) => {
 
   await newAnswer.save();
 
-  // ✅ Fetch the current user to get username
+  // Fetch the current user to get username
   const answerAuthor = await User.findById(req.user.id);
 
 
-  // ✅ Notify the question author
+  // Notify the question author
   const question = await Question.findById(questionId).populate('userId', 'username');
   if (question && question.userId._id.toString() !== req.user.id) {
     await Notification.create({
@@ -44,8 +44,7 @@ router.post('/', verifyToken, async (req, res) => {
     });
   }
 
-  // ✅ Mention notification logic
-
+  // Notify mentioned users in the answer content
 const mentionedUsernames = content.match(/@([\w\s]+)/g);
 if (mentionedUsernames) {
   const mentionedSet = new Set(
@@ -70,16 +69,10 @@ if (mentionedUsernames) {
     }
   }
 }
-
-
-
   res.status(201).json(newAnswer);
 });
 
-
-
-// Upvote/Downvote
-// Upvote/Downvote
+// up/down Vote on an answer
 router.post('/vote/:answerId', verifyToken, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -107,10 +100,8 @@ router.post('/vote/:answerId', verifyToken, async (req, res) => {
         { upsert: true, new: true }
       );
     }
-
     await answer.save();
 
-    // ✅ NEW: Update totalVotes in User
     const totalVotes = await Vote.countDocuments({ userId });
     await User.findByIdAndUpdate(userId, { totalVotes });
 
@@ -121,10 +112,7 @@ router.post('/vote/:answerId', verifyToken, async (req, res) => {
   }
 });
 
-
-
-
-// Accept Answer
+// Accept an answer for a question
 router.post('/accept/:answerId', verifyToken, async (req, res) => {
   const answer = await Answer.findById(req.params.answerId);
   if (!answer) return res.status(404).json({ error: 'Answer not found' });
@@ -145,7 +133,7 @@ router.get('/:answerId', async (req, res) => {
   res.json(answer);
 });
 
-// Update answer
+// Update answer by ID
 router.put('/:answerId', verifyToken, async (req, res) => {
   const { answerId } = req.params;
   const { content } = req.body;
@@ -172,16 +160,13 @@ router.delete('/:answerId', verifyToken, async (req, res) => {
 
   const question = await Question.findById(answer.questionId);
 
-  // ✅ If the deleted answer was accepted, clear it from question
+  // If the deleted answer was accepted, clear it from question
   if (question && question.acceptedAnswer?.toString() === answer._id.toString()) {
     question.acceptedAnswer = null;
     await question.save();
   }
-
   await answer.deleteOne();
   res.json({ message: 'Answer deleted successfully' });
 });
-
-
 
 module.exports = router;

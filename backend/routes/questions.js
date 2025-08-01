@@ -5,6 +5,7 @@ const verifyToken = require('../middlewares/verifyToken'); // ✅ import middlew
 const Answer = require('../models/Answer'); 
 const Vote = require('../models/Vote');
 
+// Get all questions
 router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
   try {
     const { title, description, tags, status } = req.body;
@@ -14,7 +15,7 @@ router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
       description,
       tags,
       status: status || 'open',
-      userId: req.user.id, // ✅ real authenticated user ID
+      userId: req.user.id, 
     });
 
     await newQuestion.save();
@@ -25,7 +26,7 @@ router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
   }
 });
 
-
+// Get all questions with pagination and filtering
 router.get('/', async (req, res) => {
   try {
     const { search = '', filter = 'newest', page = 1 } = req.query;
@@ -42,13 +43,11 @@ router.get('/', async (req, res) => {
     let sortOption = { createdAt: -1 };
     if (filter === 'mostvoted') sortOption = { upvotes: -1 };
 
-    // 🔍 Get all matching questions first
     let allQuestions = await Question.find(query)
       .sort(sortOption)
       .populate('userId', 'username avatar')
       .lean();
 
-    // 🧠 If filter is 'unanswered', manually filter those
     if (filter === 'unanswered') {
       const unanswered = [];
 
@@ -62,23 +61,20 @@ router.get('/', async (req, res) => {
           });
         }
       }
-
       const paginated = unanswered.slice(skip, skip + limit);
       return res.json({ questions: paginated, total: unanswered.length });
     }
-
-    // 📊 Add extra fields (answers count & views) to remaining filters
+    //
     const questionsWithExtras = await Promise.all(
       allQuestions.slice(skip, skip + limit).map(async (q) => {
         const answersCount = await Answer.countDocuments({ questionId: q._id });
         return {
           ...q,
-          answers: Array(answersCount).fill({}), // just to mimic answer array
+          answers: Array(answersCount).fill({}), 
           views: q.views || 0
         };
       })
     );
-
     res.json({ questions: questionsWithExtras, total: allQuestions.length });
   } catch (err) {
     console.error('Error fetching paginated questions:', err);
@@ -86,10 +82,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-
-
-
-// PUT /api/questions/:questionId/accept/:answerId
+// Get all questions by a user
 router.put('/:questionId/accept/:answerId', verifyToken, async (req, res) => {
   try {
     const { questionId, answerId } = req.params;
@@ -110,15 +103,14 @@ router.put('/:questionId/accept/:answerId', verifyToken, async (req, res) => {
   }
 });
 
-// GET /api/questions/:id - fetch single question by ID
+// Get question by ID
 router.get('/:id', async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
 
     if (!question) return res.status(404).json({ error: 'Question not found' });
 
-    // Get viewer ID (logged-in user OR guest token)
-    const userId = req.user?.id || req.headers['x-guest-id']; // support both
+    const userId = req.user?.id || req.headers['x-guest-id']; 
     const alreadyViewed = question.viewedBy.includes(userId);
 
     if (!alreadyViewed) {
@@ -138,9 +130,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-
-// PUT /api/questions/:id - Edit Question (title, description, tags)
+// Update question by ID
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     const { title, description, tags, imageFileName } = req.body;
@@ -148,7 +138,6 @@ router.put('/:id', verifyToken, async (req, res) => {
     const question = await Question.findById(req.params.id);
     if (!question) return res.status(404).json({ error: 'Question not found' });
 
-    // Only the original user can edit
     if (question.userId.toString() !== req.user.id) {
       return res.status(403).json({ error: 'You are not authorized to edit this question' });
     }
@@ -170,7 +159,7 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE /api/questions/:id
+// Delete question by ID
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
@@ -188,7 +177,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// POST /api/questions/:id/vote
+// Vote on a question
 router.post('/:id/vote', verifyToken, async (req, res) => {
   try {
     const { type } = req.body; // "upvote" or "downvote"
@@ -202,20 +191,19 @@ router.post('/:id/vote', verifyToken, async (req, res) => {
 
     if (type === 'upvote') {
       if (hasUpvoted) {
-        question.upvotes.pull(userId); // remove upvote (toggle off)
+        question.upvotes.pull(userId); 
       } else {
-        question.upvotes.push(userId); // add upvote
-        if (hasDownvoted) question.downvotes.pull(userId); // remove downvote if exists
+        question.upvotes.push(userId); 
+        if (hasDownvoted) question.downvotes.pull(userId);
       }
     } else if (type === 'downvote') {
       if (hasDownvoted) {
-        question.downvotes.pull(userId); // remove downvote (toggle off)
+        question.downvotes.pull(userId); 
       } else {
-        question.downvotes.push(userId); // add downvote
-        if (hasUpvoted) question.upvotes.pull(userId); // remove upvote if exists
+        question.downvotes.push(userId); 
+        if (hasUpvoted) question.upvotes.pull(userId); 
       }
     }
-
     await question.save();
     await Vote.findOneAndUpdate(
       { userId, questionId: question._id },
@@ -232,6 +220,5 @@ router.post('/:id/vote', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Voting failed' });
   }
 });
-
 
 module.exports = router;

@@ -7,10 +7,7 @@ const verifyToken = require('../middlewares/verifyToken'); // ✅ correct!
 const Answer = require('../models/Answer');
 const Vote = require('../models/Vote');
 
-
-
-// Get Profile Info
-// profile.js
+// Get my profile
 router.get('/me', verifyToken, async (req, res) => {
   console.log("Decoded userId:", req.userId);
 
@@ -19,16 +16,14 @@ router.get('/me', verifyToken, async (req, res) => {
     const questions = await Question.find({ userId: req.userId });
     const answers = await Answer.find({ userId: req.userId });
 
-    // ✅ Split votes by type
+    // Split votes by type
     const totalUpvotesOnQuestions = questions.reduce((sum, q) => sum + q.upvotes.length, 0);
     const totalDownvotesOnQuestions = questions.reduce((sum, q) => sum + q.downvotes.length, 0);
     const totalUpvotesOnAnswers = answers.reduce((sum, a) => sum + a.upvotes.length, 0);
     const totalDownvotesOnAnswers = answers.reduce((sum, a) => sum + a.downvotes.length, 0);
-
     const totalUpvotes = totalUpvotesOnQuestions + totalUpvotesOnAnswers;
     const totalDownvotes = totalDownvotesOnQuestions + totalDownvotesOnAnswers;
     const totalVotes = totalUpvotes - totalDownvotes;
-
     const accepted = questions.filter(q => q.acceptedAnswer).length;
 
     res.json({
@@ -37,9 +32,7 @@ router.get('/me', verifyToken, async (req, res) => {
         totalQuestions: questions.length,
         totalAnswers: answers.length,
         acceptedAnswers: accepted,
-        totalVotes, // Net votes
-
-        // ✅ Send everything
+        totalVotes, 
         totalUpvotes,
         totalDownvotes,
         totalUpvotesOnQuestions,
@@ -76,9 +69,7 @@ router.get('/my-questions', verifyToken, async (req, res) => {
   }
 });
 
-
-// Update Username + Avatar
-// Update Username + Avatar (GridFS only, no multer)
+// Update profile
 router.put('/update', verifyToken, async (req, res) => {
   const updateData = {};
 
@@ -93,12 +84,11 @@ if (req.body.email && req.body.email.trim() !== '') {
 if (req.body.avatar && req.body.avatar.trim() !== '') {
   updateData.avatar = req.body.avatar; // GridFS URL
 }
-
-
   await User.findByIdAndUpdate(req.userId, updateData);
   res.json({ message: 'Profile updated' });
 });
 
+// Get my vote history
 router.get('/my-votes', verifyToken, async (req, res) => {
   try {
     const votes = await Vote.find({ userId: req.userId })
@@ -107,7 +97,7 @@ router.get('/my-votes', verifyToken, async (req, res) => {
       .populate('questionId')
       .populate({
         path: 'answerId',
-        populate: { path: 'questionId' } // to get question title for answer
+        populate: { path: 'questionId' } 
       })
 
     res.json(votes);
@@ -116,14 +106,15 @@ router.get('/my-votes', verifyToken, async (req, res) => {
   }
 });
 
+// Get most viewed question by the user
 router.get('/most-viewed', verifyToken, async (req, res) => {
   try {
     const topQuestion = await Question.findOne({ userId: req.userId })
       .sort({ views: -1 })
-      .lean(); // optional for performance
+      .lean(); 
 
     if (!topQuestion) {
-      return res.json(null); // send null explicitly
+      return res.json(null); 
     }
 
     res.json(topQuestion);
@@ -133,16 +124,13 @@ router.get('/most-viewed', verifyToken, async (req, res) => {
   }
 });
 
-
-
-// Logout All Devices (invalidate tokens)
+// Logout from all devices
 router.post('/logout-all', verifyToken, async (req, res) => {
   // Your logic for token blacklist or cookie invalidation
   res.clearCookie('token').json({ message: 'Logged out from all devices' });
 });
 
-// Add to profile.js
-
+// Get answered questions
 router.get('/my-answers', verifyToken, async (req, res) => {
   try {
     const answers = await Answer.find({ userId: req.userId })
@@ -154,6 +142,5 @@ router.get('/my-answers', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch answered questions' });
   }
 });
-
 
 module.exports = router;

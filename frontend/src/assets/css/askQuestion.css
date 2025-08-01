@@ -1,6 +1,5 @@
 body {
   background-color: #FFF4DB; 
-
 }
 
 .ask-container {
@@ -18,13 +17,10 @@ body {
   background: white;
   border-radius: 15px;
   padding: 2rem;
-  /* padding-bottom: 30rem;   ✅ Extra space at bottom */
   max-width: 800px;
   width: 100%;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .ask-title {
   font-size: 2rem;
@@ -55,14 +51,10 @@ body {
   background: #fafafa;
   padding: 0.6rem;
   min-height: 250px;
-
-  /* Add these lines: */
   position: relative;
   z-index: 20;
   overflow: visible !important;
 }
-
-
 
 .tag-select {
   margin-top: 0.5rem;
@@ -70,7 +62,7 @@ body {
 
 .submit-btn {
   display: block;
-  margin: 1.5rem auto 0 auto;  /* Center horizontally with auto margins */
+  margin: 1.5rem auto 0 auto;  
   padding: 0.8rem 2rem;
   background-color: #4466cc;
   border: none;
@@ -81,16 +73,16 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 select.form-input {
   background-color: #fff;
   appearance: none;
 }
 
-
 .submit-btn:hover {
   background-color: #062461;
 }
-/* Highlight selected toolbar buttons */
+
 .rdw-option-wrapper {
   border-radius: 6px;
   margin: 2px;
@@ -99,7 +91,7 @@ select.form-input {
 }
 
 .rdw-option-wrapper:hover {
-  background-color: #dbeafe; /* light blue hover */
+  background-color: #dbeafe; 
   box-shadow: 0 0 0 2px #98AEE6;
 }
 
@@ -109,7 +101,6 @@ select.form-input {
   box-shadow: 0 0 0 2px #4466cc !important;
 }
 
-/* Improve toolbar spacing */
 .rdw-editor-toolbar {
   border-bottom: 1px solid #ccc;
   margin-bottom: 8px;
@@ -180,11 +171,10 @@ select.form-input {
   color: #333;
 }
 
-/* Limit image size in preview */
 .preview-box img,
 .editor-wrapper img {
   max-width: 100%;
-  max-height: 350px;  /* ✅ Limit height */
+  max-height: 350px;  
   height: auto;
   display: block;
   margin: 0.75rem auto;

@@ -47,7 +47,7 @@ useEffect(() => {
     if (res.data && res.data.user) {
       setUser(res.data.user);
       setNewUsername(res.data.user.username || '');
-      setStats(res.data.stats);  // ✅ include totalAnswers now
+      setStats(res.data.stats);  
     }
   })
 
@@ -64,7 +64,6 @@ useEffect(() => {
       );
       const acceptedAnswers = allQuestions.filter(q => q.acceptedAnswer).length;
 
-      // 🛠 Merge stats instead of replacing
       setStats(prev => ({
         ...prev,
         totalQuestions: allQuestions.length,
@@ -95,7 +94,6 @@ useEffect(() => {
 
   let avatarUrl = user.avatar;
 
-  // ✅ Upload to GridFS
   if (selectedFile) {
   const formData = new FormData();
   formData.append('file', selectedFile);
@@ -112,16 +110,12 @@ useEffect(() => {
   }
 );
 
-
-    avatarUrl = uploadRes.data.data.link;  // ✅ FIXED
+    avatarUrl = uploadRes.data.data.link;  
   } catch (err) {
     console.error('Image upload failed:', err);
     return;
   }
 }
-
-
-  // ✅ Send update to backend
   const updateData = {
     avatar: avatarUrl,
   };
@@ -132,7 +126,6 @@ useEffect(() => {
 
   try {
     await axios.put('/api/profile/update', updateData, config);
-    window.location.reload(); // ✅ reload to reflect changes
   } catch (err) {
     console.error('Profile update failed:', err);
   }
@@ -154,9 +147,7 @@ useEffect(() => {
 
   return (
     <div className="profile-container">
-      {/* Profile + Stats Row */}
       <div className="profile-stats-row">
-  {/* Profile Card */}
   <section className="card user-info-card">
     <div className="avatar-section">
         <img
@@ -192,10 +183,9 @@ useEffect(() => {
         if (file) {
           setAvatarFile(file);
 
-          // Call update only after setting state
           setTimeout(() => {
-            handleProfileUpdate(file);  // pass file directly
-          }, 100); // small delay ensures file is updated
+            handleProfileUpdate(file);  
+          }, 100); 
         }
       }}
 
@@ -248,7 +238,6 @@ useEffect(() => {
     </div>
   </section>
 
-  {/* Separate Stats Card beside it */}
   <section className="card stats-card">
     <h3>Basic Stats</h3>
     <ul className="stats-list">
@@ -288,17 +277,11 @@ useEffect(() => {
     Summary
   </button>
 </div>
-
 </li>
-
-
- 
 </ul>
-
   </section>
 </div>
 
-{/* My Activity Summary */}
 <section className="card activity-summary">
   <h3>My Activity Summary</h3>
 
@@ -370,10 +353,6 @@ useEffect(() => {
   </div>
 </section>
 
-
-
-      {/* My Questions */}
-      {/* My Questions (Toggleable) */}
 <section className="card questions">
   <div className="activity-header" onClick={() => setShowQuestions(prev => !prev)}>
     <h3>My Questions</h3>
@@ -425,8 +404,6 @@ useEffect(() => {
   )}
 </section>
 
-
-      {/* Logout */}
       <section className="card logout">
   <button
     onClick={() => {
@@ -469,8 +446,6 @@ useEffect(() => {
     </div>
   </div>
 )}
-
-
     </div>
   );
 };

@@ -7,12 +7,12 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const verifyToken = require('../middlewares/verifyToken');
 
-// Signup 
+// Signup
 router.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // ✅ 1. Check if username or email already exists BEFORE saving
+    // Check if username or email already exists BEFORE saving
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]
     });
@@ -20,23 +20,22 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // ✅ 2. Create a new User instance (will trigger pre-save hook for password hashing)
+    // Create a new User instance (will trigger pre-save hook for password hashing)
     const newUser = new User({
       username,
       email,
-      password,  // pre-save hook will hash this
+      password,  
     });
+    await newUser.save(); 
 
-    await newUser.save(); // ✅ safe save, no duplicate issues
-
-    // ✅ 3. Generate token
+    // Generate token
     const token = jwt.sign(
       { id: newUser._id },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    // ✅ 4. Return success
+    // Return success
     res.status(201).json({
       token,
       user: {
@@ -52,9 +51,7 @@ router.post('/signup', async (req, res) => {
   console.error('🔥 Full error:', err);
   return res.status(500).json({ error: err.message || 'Server error during signup' });
 }
-
 });
-
 
 // Login 
 router.post('/login', async (req, res) => {
@@ -187,7 +184,5 @@ router.get('/search', async (req, res) => {
     res.status(500).json({ error: 'Failed to search users' });
   }
 });
-
-
 
 module.exports = router;

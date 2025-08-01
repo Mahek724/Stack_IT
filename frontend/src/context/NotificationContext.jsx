@@ -1,9 +1,7 @@
-// context/NotificationContext.js
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 export const NotificationContext = createContext();
-
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
@@ -27,7 +25,6 @@ const fetchNotifications = async () => {
   });
   setNotifications(res.data);
 };
-
 
   useEffect(() => {
     fetchUnreadCount();

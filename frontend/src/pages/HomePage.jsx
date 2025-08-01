@@ -13,8 +13,8 @@ const HomePage = () => {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const limit = 5;
 
-  const { user } = useAuth();          // Access current user
-  const navigate = useNavigate();      // ✅ For programmatic navigation
+  const { user } = useAuth();          
+  const navigate = useNavigate();      
 
   // Handle Ask Question click
   const handleAskQuestion = () => {
@@ -72,14 +72,14 @@ const totalPages = Math.ceil(totalQuestions / limit);
         </div>
       </div>
 
-      {/* ✅ Questions List */}
+      {/* Questions List */}
       <div className="question-list">
         {questions.map((q) => (
           <QuestionCard key={q._id} question={q} />
         ))}
       </div>
 
-      {/* ✅ Pagination */}
+      {/* Pagination */}
       <div className="pagination">
         <button
           disabled={page === 1}

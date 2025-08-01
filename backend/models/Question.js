@@ -5,7 +5,7 @@ const QuestionSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   tags: [String],
-  imageFileName: { type: String, default: null }, // or imageId for GridFS ObjectId
+  imageFileName: { type: String, default: null }, 
   views: { type: Number, default: 0},
   viewedBy: [{ type: String }], 
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],

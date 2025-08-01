@@ -12,7 +12,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const EditAnswerPage = () => {
-  const { id } = useParams(); // answer ID
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [showPreview, setShowPreview] = useState(false);
@@ -51,7 +51,6 @@ const EditAnswerPage = () => {
 
     toast.success("Answer updated successfully!");
     
-    // ⏳ Delay navigation so user can see toast
     setTimeout(() => {
       navigate(`/answer/${answer.questionId}`);
     }, 1500);

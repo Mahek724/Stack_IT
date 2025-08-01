@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const AnswerSchema = new mongoose.Schema({
   questionId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question',           // ✅ Links to the Question model
+    ref: 'Question',           
     required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',               // Optional: if you have users
+    ref: 'User',               
     required: true,
   },
   content: {

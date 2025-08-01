@@ -48,10 +48,10 @@ const keywordTags = tagOptions.map(tag => tag.value.toLowerCase());
       merged.push(tag);
     }
   });
-
   setTags(merged);
 };
 
+// Detect tags from title and editor content
 useEffect(() => {
   const plainText = editorState.getCurrentContent().getPlainText();
   detectTagsFromText(plainText);
@@ -79,9 +79,7 @@ useEffect(() => {
   setTags(prev => [...prev, newTag]);
 };
 
-
-  
-
+// Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -101,12 +99,12 @@ useEffect(() => {
         title,
         description,
         tags: tags.map((tag) => tag.value),
-        status, // ✅ include status
+        status, // 
       };
 
 
     try {
-      const token = localStorage.getItem('token'); // Or from your auth context
+      const token = localStorage.getItem('token'); 
 
         await axios.post('http://localhost:5000/api/questions', payload, {
           headers: {
@@ -175,7 +173,7 @@ useEffect(() => {
                             },
                           });
 
-                          return res.data; // { data: { link: "/api/uploads/<id>" } }
+                          return res.data;
                         } catch (error) {
                           console.error('Image upload failed', error);
                           return Promise.reject(error);

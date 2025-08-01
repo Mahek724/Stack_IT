@@ -19,8 +19,8 @@ function Signup() {
     try {
      const res = await axios.post('http://localhost:5000/api/auth/signup', form);
       localStorage.setItem('token', res.data.token);
-      login(res.data.token, res.data.user); // ✅ log in via context
-      navigate('/login'); // ✅ go to home/dashboard
+      login(res.data.token, res.data.user); 
+      navigate('/login'); 
     } catch (err) {
       alert(err.response?.data?.error || 'Signup failed');
     }

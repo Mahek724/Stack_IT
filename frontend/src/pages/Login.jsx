@@ -3,16 +3,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/css/login.css';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext'; // adjust path if needed
+import { useAuth } from '../context/AuthContext'; 
 
 
 function Login() {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
   const navigate = useNavigate();
-  const { login } = useAuth(); // 👈 extract the `login` function
+  const { login } = useAuth(); //
 
-
-  // ✅ 1. On load, check for saved credentials
+// Access login function from context
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('rememberedCredentials'));
     if (saved) {
@@ -27,7 +26,7 @@ function Login() {
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
   const handleCheckbox = e => setForm({ ...form, remember: e.target.checked });
 
-  // ✅ 2. Save/remove credentials on submit based on "remember"
+  // Handle form submission
   const handleSubmit = async e => {
     e.preventDefault();
     try {
@@ -43,20 +42,19 @@ function Login() {
         }
       );
 
-      // ✅ Save or remove credentials with password Base64-encoded
       if (form.remember) {
         localStorage.setItem(
           'rememberedCredentials',
           JSON.stringify({
             email: form.email,
-            password: btoa(form.password), // encode password
+            password: btoa(form.password), 
           })
         );
       } else {
         localStorage.removeItem('rememberedCredentials');
       }
 
-     login(res.data.token, res.data.user); // 👈 update context
+     login(res.data.token, res.data.user); 
       navigate('/');
 
     } catch (err) {

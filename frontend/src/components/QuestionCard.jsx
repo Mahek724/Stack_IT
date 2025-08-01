@@ -8,7 +8,6 @@ const QuestionCard = ({ question }) => {
   const answers = question.answers || [];
   const netVotes = upvotes.length - downvotes.length;
 
-  // Determine question status
 let questionStatus = 'Open';
 if (question.acceptedAnswer) {
   questionStatus = 'Answered';

@@ -39,7 +39,7 @@ setUser(res.data.user);
       <div className="nav-right">
           <Link to="/">Home</Link>
 
-          <Notification /> {/* ✅ Renders dynamic bell with dropdown */}
+          <Notification /> 
 
           <Link to="/profile" className="icon profile-icon" aria-label="Profile">
             {user ? (

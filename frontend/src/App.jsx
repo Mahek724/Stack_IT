@@ -5,16 +5,16 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AskQuestionPage from './pages/AskQuestionPage';
 import HomePage from './pages/HomePage';
-import SmartNavbar from './components/SmartNavbar'; // ✅ Import it here
+import SmartNavbar from './components/SmartNavbar'; 
 import ProfilePage from './pages/ProfilePage';
 import AnswerPage from './pages/AnswerPage';
-import EditQuestionPage from './pages/EditQuestionPage'; // ✅ Import EditQuestionPage
+import EditQuestionPage from './pages/EditQuestionPage'; 
 import EditAnswerPage from './pages/EditAnswerPage';
 
 function App() {
   return (
     <Router>
-      <SmartNavbar /> {/* ✅ Always shows correct navbar */}
+      <SmartNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
@@ -25,7 +25,6 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-question/:id" element={<EditQuestionPage />} />
         <Route path="/edit-answer/:id" element={<EditAnswerPage />} />
-        {/* <Route path="/question/:id" element={<AnswerPage />} /> */}
         <Route path="/questions/:id" element={<AnswerPage />} />
         <Route path="/answer/:id" element={<AnswerPage />} />
 

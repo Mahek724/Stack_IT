@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../assets/css/mention.css'; // Assuming you have a CSS file for styling
+import '../assets/css/mention.css'; 
 
 export default function MentionInput({ value, onChange }) {
   const [showSuggest, setShowSuggest] = useState(false);
   const [user, setUser] = useState(null);
   const [cursor, setCursor] = useState(-1);
 
-  // components/MentionInput.jsx
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -16,7 +15,7 @@ useEffect(() => {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
-      setUser(res.data.user); // ✅ updated for your actual response structure
+      setUser(res.data.user); 
     } catch (err) {
       console.error('❌ Failed to fetch user:', err);
     }
@@ -24,7 +23,6 @@ useEffect(() => {
 
   fetchUser();
 }, []);
-
 
   const handleChange = (e) => {
     const val = e.target.value;

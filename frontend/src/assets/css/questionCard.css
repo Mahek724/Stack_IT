@@ -117,7 +117,7 @@
 }
 
 .vote-box, .vote-btn, .vote-percent {
-  display: none; /* Hide old vote UI elements */
+  display: none; 
 }
 
 .vote-display {

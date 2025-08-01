@@ -1,12 +1,12 @@
 .navbar {
-  position: fixed;               /* ✅ Stick to top globally */
+  position: fixed;               
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;                  /* ✅ realistic height */
+  height: 56px;                  
   background-color: #5dace7;
   color: #fff;
-  padding: 0 2rem;               /* ✅ No vertical padding to avoid height conflict */
+  padding: 0 2rem;               
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,10 +14,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   z-index: 1000;
 }
-.main-content {
-  padding-top: 56px; /* Same as navbar height */
-}
 
+.main-content {
+  padding-top: 56px; 
+}
 
 .nav-left .brand {
   font-size: 1.6rem;
@@ -79,7 +79,6 @@
   position: relative;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .navbar {
     flex-direction: column;

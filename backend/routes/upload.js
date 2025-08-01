@@ -4,10 +4,10 @@ const mongoose = require('mongoose');
 const { GridFSBucket } = require('mongodb');
 const crypto = require('crypto');
 const path = require('path');
-
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Upload an image
 router.post('/upload-image', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -26,12 +26,10 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
   });
 
   uploadStream.end(req.file.buffer);
-
   uploadStream.on('finish', () => {
   console.log('✅ File saved with ID:', uploadStream.id);
   res.json({ data: { link: `/api/uploads/${uploadStream.id}` } });
 });
-
 
   uploadStream.on('error', (err) => {
     console.error('GridFS upload error:', err);
@@ -39,6 +37,7 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
   });
 });
 
+// Get uploaded file by ID
 router.get('/uploads/:id', async (req, res) => {
   const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
     bucketName: 'uploads'
@@ -57,7 +56,6 @@ router.get('/uploads/:id', async (req, res) => {
   if (!fileDoc) {
     return res.status(404).send('File not found');
   }
-
   res.set('Content-Type', fileDoc.contentType || 'application/octet-stream');
 
   const downloadStream = bucket.openDownloadStream(fileDoc._id);

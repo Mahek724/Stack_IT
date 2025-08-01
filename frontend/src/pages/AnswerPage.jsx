@@ -26,10 +26,9 @@ const AnswerPage = () => {
   const [mentionQuery, setMentionQuery] = useState('');
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const location = useLocation();
-
-  // Ref for contenteditable area in Draft.js
   const editorContentRef = useRef();
 
+  // Fetch user data
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -40,6 +39,7 @@ const AnswerPage = () => {
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
+  // Handle click outside to close mention dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest('.mention-dropdown')) {
@@ -50,10 +50,10 @@ const AnswerPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Fetch question and answers on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     const guestIdKey = 'guestId';
-
     let headers = {};
 
     if (token) {
@@ -66,11 +66,11 @@ const AnswerPage = () => {
       }
       headers['x-guest-id'] = guestId;
     }
-
     axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
+  // Scroll to answer if answerId is in URL
   useEffect(() => {
   const params = new URLSearchParams(location.search);
   const answerId = params.get("answerId");
@@ -82,11 +82,11 @@ const AnswerPage = () => {
         el.classList.add("highlighted");
         setTimeout(() => el.classList.remove("highlighted"), 2500);
       }
-    }, 400); // delay to ensure answers are loaded
+    }, 400);
   }
 }, [answers]);
 
-
+  // Handle vote logic
   const handleVote = async (targetId, type, isQuestion = false) => {
     if (!user) {
       toast.info("Login required to vote");
@@ -107,7 +107,6 @@ const AnswerPage = () => {
         axios.get(`/api/questions/${id}`),
         axios.get(`/api/answers/question/${id}`)
       ]);
-
       setQuestion(questionRes.data);
       setAnswers(answersRes.data);
 
@@ -115,17 +114,16 @@ const AnswerPage = () => {
       const res = await axios.get('/api/profile/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
         detail: res.data.stats
       }));
-
     } catch (err) {
       toast.error("Vote failed");
       console.error(err);
     }
   };
 
+  // Handle answer submission
   const handleSubmitAnswer = async () => {
     if (!user) {
       toast.error("Please log in to submit an answer.");
@@ -141,9 +139,7 @@ const AnswerPage = () => {
       toast.error("Answer content cannot be empty.");
       return;
     }
-
     const content = draftToHtml(rawContent);
-
     try {
       await axios.post('/api/answers', { questionId: id, content }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -156,6 +152,7 @@ const AnswerPage = () => {
     }
   };
 
+  // Handle accepting an answer
   const handleAccept = async (answerId) => {
     await axios.post(`/api/answers/accept/${answerId}`, {}, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -164,7 +161,6 @@ const AnswerPage = () => {
     axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
     axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   };
-
   const handleDelete = async (type, targetId) => {
     if (!window.confirm("Are you sure you want to delete?")) return;
     const url = type === 'question'
@@ -189,12 +185,11 @@ const AnswerPage = () => {
     }
   };
 
+  // Handle share link
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied!");
   };
-
-  // ************* Mention Dropdown Positioning Logic *************
   const handleEditorChange = useCallback((newState) => {
   setEditorState(newState);
 
@@ -204,7 +199,6 @@ const AnswerPage = () => {
   const text = block.getText();
   const anchorOffset = selection.getAnchorOffset();
   const charBeforeCursor = text.slice(0, anchorOffset);
-
   const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
 
   if (match) {
@@ -216,8 +210,6 @@ const AnswerPage = () => {
         setMentionActive(true);
         setMentionQuery(query);
 
-
-          // Position dropdown at caret
           setTimeout(() => {
   const selection = window.getSelection();
   if (!selection.rangeCount) return;
@@ -233,9 +225,6 @@ const AnswerPage = () => {
     });
   }
 }, 0);
-
-
-
 
         })
         .catch(() => {
@@ -263,7 +252,7 @@ const AnswerPage = () => {
       : 'Open';
 
 
-    const insertMention = (user) => {
+  const insertMention = (user) => {
   const contentState = editorState.getCurrentContent();
   const selection = editorState.getSelection();
   const block = contentState.getBlockForKey(selection.getStartKey());
@@ -306,12 +295,9 @@ const AnswerPage = () => {
   setMentionActive(false);
 };
 
-// Highlight @mentions with a span
 const highlightMentions = (html) => {
   return html.replace(/@([\w]+)/g, '<span class="mention-highlight">@$1</span>');
 };
-
-
 
   return (
     <div className="answer-page-container">
@@ -470,7 +456,6 @@ const highlightMentions = (html) => {
             wrapperClassName="rich-editor-wrapper"
             editorClassName="rich-editor"
             editorRef={(ref) => {
-              // react-draft-wysiwyg passes this ref to Draft.js Editor
               if (ref) editorContentRef.current = ref.editor;
             }}
           />
@@ -491,8 +476,8 @@ const highlightMentions = (html) => {
   key={user._id}
   className="mention-suggestion"
   onMouseDown={(e) => {
-    e.preventDefault(); // Prevent editor from losing focus
-    insertMention(user); // Call the function above
+    e.preventDefault(); 
+    insertMention(user); 
   }}
 >
   <img

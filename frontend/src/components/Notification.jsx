@@ -1,5 +1,3 @@
-// components/Notifica
-// tionDropdown.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { NotificationContext } from '../context/NotificationContext';
 import { Link } from 'react-router-dom';
@@ -23,7 +21,6 @@ export default function Notification() {
         Authorization: `Bearer ${token}`,
       },
     });
-
     fetchUnreadCount();
   }
 };
@@ -53,7 +50,6 @@ export default function Notification() {
               {n.message}
             </Link>
 
-
             <button
               className="item-dropdown-toggle"
               onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
@@ -77,8 +73,6 @@ export default function Notification() {
     )}
   </div>
 )}
-
-
     </div>
   );
 }

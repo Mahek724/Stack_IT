@@ -1,12 +1,9 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { TagProvider } from './context/TagContext';
-
-// ✅ Fix for Draft.js - setImmediate polyfill
 import 'setimmediate';
 import process from 'process';
 import { AuthProvider } from './context/AuthContext.jsx';
