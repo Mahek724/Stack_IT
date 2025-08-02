@@ -23,7 +23,22 @@ const defaultTags = [
   { label: 'Algorithms', value: 'algorithms' },
   { label: 'Database', value: 'database' },
   { label: 'Security', value: 'security' },
+  { label: 'DSA', value: 'dsa' },
   { label: 'Docker', value: 'docker' },
+  { label: 'Java', value: 'java' },
+  { label: 'Programming', value: 'programming' },
+  { label: 'Stack', value: 'stack' },
+  { label: 'Queue', value: 'queue' },
+  { label: 'OOP', value: 'oop' },
+  { label: 'useState', value: 'useSate' },
+  { label: 'useEffect', value: 'useEffect' },
+  { label: 'Recursion', value: 'recursion' },
+  { label: 'Binary Search', value: 'binarySearch' },
+  { label: 'Interfaces', value: 'interfaces' },
+
+
+
+
 ];
 
 export const TagProvider = ({ children }) => {
