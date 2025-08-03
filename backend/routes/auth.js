@@ -135,24 +135,44 @@ router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
-// Google callback
+
+// Google callback route (no session, JWT only)
 router.get(
   '/google/callback',
   passport.authenticate('google', {
     failureRedirect: `${process.env.CLIENT_URL}/login?error=google_login_failed`,
+    session: false, // important for JWT-only
   }),
   (req, res) => {
-    res.redirect(process.env.CLIENT_URL);
+    const user = req.user;
+
+    // Create JWT
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    // Redirect with token and user info
+    const redirectUrl = `${process.env.CLIENT_URL}/google/callback?token=${token}&user=${encodeURIComponent(JSON.stringify({
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar || '/avatar.png',
+      role: user.role,
+    }))}`;
+
+    res.redirect(redirectUrl);
   }
 );
 
+
+
 // Logout
+// For frontend to just "clear token"
 router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.clearCookie('connect.sid');
-    res.send('Logged out');
-  });
+  res.json({ message: 'You can now clear token on frontend' });
 });
+
 
 // Get currently authenticated user
 router.get('/me', verifyToken, async (req, res) => {

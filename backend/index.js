@@ -2,7 +2,6 @@ require('dotenv').config();
 require('./auth/passport');
 
 const express = require('express');
-const session = require('express-session');
 
 const cors = require('cors');
 
@@ -12,7 +11,6 @@ const allowedOrigins = [
 ];
 
 const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo');
 const passport = require('passport');
 
 // Import routes
@@ -34,25 +32,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Sessions
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'default_secret',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    collectionName: 'sessions'
-  }),
-  cookie: {
-    secure: false, 
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  }
-}));
 
 // Passport Auth
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Mount routes
 app.use('/api/auth', authRoutes);

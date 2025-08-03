@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 import AnswerPage from './pages/AnswerPage';
 import EditQuestionPage from './pages/EditQuestionPage'; 
 import EditAnswerPage from './pages/EditAnswerPage';
+import GoogleCallback from './pages/GoogleCallback';
 
 function App() {
   return (
@@ -27,11 +28,7 @@ function App() {
         <Route path="/edit-answer/:id" element={<EditAnswerPage />} />
         <Route path="/questions/:id" element={<AnswerPage />} />
         <Route path="/answer/:id" element={<AnswerPage />} />
-
-
-
-
-
+        <Route path="/google/callback" element={<GoogleCallback />} />
       </Routes>
     </Router>
   );
