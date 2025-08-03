@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import '../assets/css/mention.css'; 
+import axios from '../../src/axios';
 
 export default function MentionInput({ value, onChange }) {
   const [showSuggest, setShowSuggest] = useState(false);

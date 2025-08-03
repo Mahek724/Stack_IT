@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../src/axios';
 import '../assets/css/login.css';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext'; 

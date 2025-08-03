@@ -4,7 +4,7 @@ import { EditorState, convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import CreatableSelect from 'react-select/creatable';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import axios from '../../src/axios';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '../assets/css/askQuestion.css';

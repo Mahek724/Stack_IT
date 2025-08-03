@@ -1,8 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { NotificationContext } from '../context/NotificationContext';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import '../assets/css/notification.css';
+import axios from '../../src/axios';
+
 
 export default function Notification() {
   const { notifications, unread, fetchNotifications, fetchUnreadCount } = useContext(NotificationContext);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios from '../../src/axios';
 import '../assets/css/login.css';
 
 function ForgotPassword() {

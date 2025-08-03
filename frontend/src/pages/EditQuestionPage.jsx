@@ -7,11 +7,12 @@ import { Editor } from 'react-draft-wysiwyg';
 import CreatableSelect from 'react-select/creatable';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '../assets/css/edit.css';
 import { useTags } from '../context/TagContext';
+import axios from '../../src/axios';
+
 
 const EditQuestionPage = () => {
   const { id } = useParams();

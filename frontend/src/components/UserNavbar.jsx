@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
 import '../assets/css/navbar.css';
 import Notification from '../components/Notification';
-import axios from 'axios';
+import axios from '../../src/axios';
+
 
 const UserNavbar = () => {
   const [user, setUser] = useState(null);
@@ -14,7 +15,7 @@ const UserNavbar = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await axios.get('http://localhost:5000/api/auth/me', {
+        const res = await get('http://localhost:5000/api/auth/me', {
   headers: {
     Authorization: `Bearer ${token}`,
   },

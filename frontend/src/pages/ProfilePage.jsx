@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import axios from '../../src/axios';
 import '../assets/css/profile.css';
 
 const ProfilePage = () => {

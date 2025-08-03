@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../src/axios';
 import { EditorState, convertToRaw, Modifier } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';

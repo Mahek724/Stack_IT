@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../src/axios';
+
 
 export const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
@@ -10,6 +9,8 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import '../assets/css/answer.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from '../../src/axios';
+
 
 const EditAnswerPage = () => {
   const { id } = useParams(); 
