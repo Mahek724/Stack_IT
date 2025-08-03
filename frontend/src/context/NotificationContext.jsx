@@ -10,7 +10,7 @@ export const NotificationProvider = ({ children }) => {
 
 
   const fetchUnreadCount = async () => {
-  const res = await axios.get('http://localhost:5000/api/notifications/unread-count', {
+  const res = await axios.get('/api/notifications/unread-count', {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -19,13 +19,14 @@ export const NotificationProvider = ({ children }) => {
 };
 
 const fetchNotifications = async () => {
-  const res = await axios.get('http://localhost:5000/api/notifications', {
+  const res = await axios.get('/api/notifications', {
     headers: {
       Authorization: `Bearer ${token}`
     }
   });
   setNotifications(res.data);
 };
+
 
   useEffect(() => {
     fetchUnreadCount();

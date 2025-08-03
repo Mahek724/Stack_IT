@@ -371,9 +371,9 @@ const highlightMentions = (html) => {
             <div className="question-user-inline">
               <img
                 src={question.userId?.avatar?.startsWith('/api/')
-                  ? `http://localhost:5000${question.userId.avatar}`
+                  ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
                   : question.userId?.avatar
-                    ? `http://localhost:5000/api/uploads/${question.userId.avatar}`
+                    ? `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${question.userId.avatar}`
                     : '/avatar.png'}
                 alt="avatar"
                 className="avatar small-avatar"
@@ -409,9 +409,9 @@ const highlightMentions = (html) => {
               <div className="question-user-inline">
                 <img
                   src={ans.userId?.avatar?.startsWith('/api/')
-                    ? `http://localhost:5000${ans.userId.avatar}`
+                    ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
                     : ans.userId?.avatar
-                      ? `http://localhost:5000/api/uploads/${ans.userId.avatar}`
+                      ? `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${ans.userId.avatar}`
                       : '/avatar.png'}
                   alt="avatar"
                   className="avatar small-avatar"
@@ -482,7 +482,7 @@ const highlightMentions = (html) => {
 >
   <img
     src={user.avatar?.startsWith('/api/')
-      ? `http://localhost:5000${user.avatar}`
+      ? `${import.meta.env.VITE_API_BASE_URL}${user.avatar}`
       : user.avatar || '/avatar.png'}
     alt="avatar"
     className="avatar small-avatar"

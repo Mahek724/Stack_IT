@@ -49,7 +49,7 @@ setUser(res.data.user);
                   user.avatar
                     ? user.avatar.startsWith('/api/')
                       ? `http://localhost:5000${user.avatar}`
-                      : `http://localhost:5000/api/uploads/${user.avatar}`
+                      : `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${user.avatar}`
                     : '/default-avatar.png'
                 }
                 alt="Profile"

@@ -55,8 +55,8 @@ const statusBadge = {
               src={
                 question.userId?.avatar
                   ? question.userId.avatar.startsWith('/api/')
-                    ? `http://localhost:5000${question.userId.avatar}`
-                    : `http://localhost:5000/api/uploads/${question.userId.avatar}`
+                    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+                    : `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${question.userId.avatar}`
                   : '/avatar.png'
               }
               alt="avatar"
