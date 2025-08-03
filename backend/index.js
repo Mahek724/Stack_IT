@@ -3,7 +3,14 @@ require('./auth/passport');
 
 const express = require('express');
 const session = require('express-session');
+
 const cors = require('cors');
+
+const allowedOrigins = [
+  'https://stackit-frontend-nqky.onrender.com', // frontend deployed URL
+  'http://localhost:5173'                       // local dev (optional)
+];
+
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
@@ -23,7 +30,7 @@ app.use(express.json());
 // Allow frontend to access backend
 const CLIENT_ORIGIN = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
-  origin: CLIENT_ORIGIN,
+  origin: allowedOrigins,
   credentials: true
 }));
 
