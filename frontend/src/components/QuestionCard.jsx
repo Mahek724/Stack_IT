@@ -52,16 +52,15 @@ const statusBadge = {
           </div>
           <div className="author">
             <img
-              src={
-                question.userId?.avatar
-                  ? question.userId.avatar.startsWith('/api/')
-                    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
-                    : `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${question.userId.avatar}`
-                  : '/avatar.png'
-              }
-              alt="avatar"
+              src={question.userId?.avatar || '/avatar.png'}
               className="avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/avatar.png';
+              }}
+              alt="avatar"
             />
+
             <span className="username">{question.userId?.username || 'User'}</span>
           </div>
         </div>
