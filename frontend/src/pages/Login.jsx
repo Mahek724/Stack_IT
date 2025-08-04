@@ -31,7 +31,7 @@ function Login() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/auth/login',
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
         {
           email: form.email,
           password: form.password,
@@ -63,7 +63,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.open('http://localhost:5000/api/auth/google', '_self');
+    window.open(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, '_self');
   };
 
   return (
