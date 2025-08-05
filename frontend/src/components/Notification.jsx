@@ -17,7 +17,7 @@ export default function Notification() {
   if (!open) {
     await fetchNotifications();
 
-    await axios.put('http://localhost:5000/api/notifications/mark-read', {}, {
+    await axios.put('/api/notifications/mark-read', {}, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

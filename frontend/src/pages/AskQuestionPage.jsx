@@ -106,7 +106,7 @@ useEffect(() => {
     try {
       const token = localStorage.getItem('token'); 
 
-        await axios.post('http://localhost:5000/api/questions', payload, {
+        await axios.post('http://:5000/api/questions', payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -167,7 +167,7 @@ useEffect(() => {
                         formData.append('file', file);
 
                         try {
-                          const res = await axios.post('http://localhost:5000/api/upload-image', formData, {
+                          const res = await axios.post('/api/upload-image', formData, {
                             headers: {
                               'Content-Type': 'multipart/form-data',
                             },

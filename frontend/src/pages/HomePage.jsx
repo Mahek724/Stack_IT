@@ -29,7 +29,7 @@ const HomePage = () => {
   const fetchQuestions = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/questions?search=${search}&filter=${filter}&page=${page}`
+        `/api/questions?search=${search}&filter=${filter}&page=${page}`
       );
       setQuestions(res.data.questions);
       setTotalQuestions(res.data.total);

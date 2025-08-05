@@ -15,7 +15,7 @@ const UserNavbar = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const res = await axios.get('http://localhost:5000/api/auth/me', {
+      const res = await axios.get('/api/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -46,7 +46,8 @@ const UserNavbar = () => {
           <Link to="/profile" className="icon profile-icon" aria-label="Profile">
             {user ? (
               <img
-  src={user.avatar ? user.avatar : defaultAvatar}
+  // src={user.avatar ? user.avatar : defaultAvatar}
+ src={user.avatar || '/avatar.png'}
   alt="User Avatar"
   style={{
     height: '32px',
