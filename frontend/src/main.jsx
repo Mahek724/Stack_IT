@@ -9,7 +9,7 @@ import process from 'process';
 import { AuthProvider } from './context/AuthContext.jsx';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { NotificationProvider } from './context/NotificationContext';
-
+import { BrowserRouter } from 'react-router-dom';
 
 window.global = window;
 window.process = process;
@@ -19,12 +19,14 @@ if (typeof window.setImmediate === 'undefined') {
 }
 
 createRoot(document.getElementById('root')).render(
-      <AuthProvider>
-        <TagProvider>
-         <NotificationProvider>
-           <App />
-         </NotificationProvider>
-         <ToastContainer position="top-right" autoClose={3000} />
-        </TagProvider>
-      </AuthProvider>
+  <BrowserRouter>
+    <AuthProvider>
+      <TagProvider>
+        <NotificationProvider>
+          <App />
+          <ToastContainer position="top-right" autoClose={3000} />
+        </NotificationProvider>
+      </TagProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );

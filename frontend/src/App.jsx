@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
@@ -14,7 +14,7 @@ import GoogleCallback from './pages/GoogleCallback';
 
 function App() {
   return (
-    <Router>
+    <>
       <SmartNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -30,8 +30,9 @@ function App() {
         <Route path="/answer/:id" element={<AnswerPage />} />
         <Route path="/google/callback" element={<GoogleCallback />} />
       </Routes>
-    </Router>
+    </>
   );
 }
+
 
 export default App;
