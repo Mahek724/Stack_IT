@@ -151,7 +151,7 @@ useEffect(() => {
   <section className="card user-info-card">
     <div className="avatar-section">
         <img
-          src={user.avatar ? `${user.avatar}?t=${Date.now()}` : '/default-avatar.png'}
+          src={user.avatar ? `${user.avatar}?t=${Date.now()}` : '/avatar.png'}
           alt="Avatar"
           className="clickable-avatar"
           onClick={() => fileInputRef.current.click()}

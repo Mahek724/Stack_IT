@@ -106,7 +106,7 @@ useEffect(() => {
     try {
       const token = localStorage.getItem('token'); 
 
-        await axios.post('http://:5000/api/questions', payload, {
+        await axios.post('/api/questions', payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
