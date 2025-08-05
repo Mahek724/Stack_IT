@@ -27,6 +27,7 @@ app.use(express.json());
 
 // Allow frontend to access backend
 const CLIENT_ORIGIN = process.env.CLIENT_URL || 'http://localhost:5173';
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true

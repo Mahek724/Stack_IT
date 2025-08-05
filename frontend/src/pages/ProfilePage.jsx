@@ -93,45 +93,57 @@ useEffect(() => {
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
   let avatarUrl = user.avatar;
+  let avatarUpdated = false;
+  let usernameUpdated = false;
 
   if (selectedFile) {
-  const formData = new FormData();
-  formData.append('file', selectedFile);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
 
-  try {
-    const uploadRes = await axios.post(
-  '/api/upload-image',
-  formData,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data'
+    try {
+      const uploadRes = await axios.post('/api/upload-image', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      avatarUrl = uploadRes.data.data.link;
+      avatarUpdated = true;
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      return;
     }
   }
-);
 
-    avatarUrl = uploadRes.data.data.link;  
-  } catch (err) {
-    console.error('Image upload failed:', err);
-    return;
+  const updateData = {};
+
+  if (avatarUpdated && avatarUrl !== user.avatar) {
+    updateData.avatar = avatarUrl;
   }
-}
-  const updateData = {
-    avatar: avatarUrl,
-  };
 
-  if (newUsername && newUsername !== user.username) {
-    updateData.username = newUsername;
+  if (newUsername.trim() && newUsername.trim() !== user.username) {
+    // Optional: Add frontend validation here (e.g., no special characters, min length)
+    updateData.username = newUsername.trim();
+    usernameUpdated = true;
+  }
+
+  if (!avatarUpdated && !usernameUpdated) {
+    console.log("No changes to update.");
+    setIsEditing(false);
+    return;
   }
 
   try {
     await axios.put('/api/profile/update', updateData, config);
+    setUser(prev => ({ ...prev, ...updateData }));
   } catch (err) {
     console.error('Profile update failed:', err);
   }
 
   setIsEditing(false);
 };
+
 
 
   const calculateReputation = () => {

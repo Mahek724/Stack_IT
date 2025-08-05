@@ -46,8 +46,7 @@ const UserNavbar = () => {
           <Link to="/profile" className="icon profile-icon" aria-label="Profile">
             {user ? (
               <img
-  src={user.avatar ? user.avatar : defaultAvatar}
-//  src={user.avatar || '/avatar.png'}
+  src={user.avatar ? user.avatar : '/avatar.png'} // use a valid default
   alt="User Avatar"
   style={{
     height: '32px',
@@ -56,6 +55,7 @@ const UserNavbar = () => {
     objectFit: 'cover',
   }}
 />
+
 
 
             ) : (

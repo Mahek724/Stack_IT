@@ -28,8 +28,15 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
   uploadStream.end(req.file.buffer);
   uploadStream.on('finish', () => {
   console.log('✅ File saved with ID:', uploadStream.id);
-  res.json({ data: { link: `/api/uploads/${uploadStream.id}` } });
+
+  const host = req.protocol + '://' + req.get('host');
+  res.json({ 
+    data: { 
+      link: `${host}/api/uploads/${uploadStream.id}` 
+    } 
+  });
 });
+
 
   uploadStream.on('error', (err) => {
     console.error('GridFS upload error:', err);
