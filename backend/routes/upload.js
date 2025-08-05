@@ -8,6 +8,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Upload an image
+// Upload an image
 router.post('/upload-image', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -29,7 +30,11 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
   uploadStream.on('finish', () => {
   console.log('✅ File saved with ID:', uploadStream.id);
 
-  const host = req.protocol + '://' + req.get('host');
+  // 👇 Ensure HTTPS when deployed on Render
+  const isRender = req.get('host')?.includes('onrender.com');
+  const protocol = isRender ? 'https' : req.protocol;
+  const host = `${protocol}://${req.get('host')}`;
+
   res.json({ 
     data: { 
       link: `${host}/api/uploads/${uploadStream.id}` 

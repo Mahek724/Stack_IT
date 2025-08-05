@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../src/axios';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -37,7 +39,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/login'); 
+    window.location.href = '/login';
+
   };
 
   return (
