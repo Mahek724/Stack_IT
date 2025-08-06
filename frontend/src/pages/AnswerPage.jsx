@@ -370,13 +370,15 @@ const highlightMentions = (html) => {
 
             <div className="question-user-inline">
               <img
-                src={question.userId?.avatar
-                  ? `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${question.userId.avatar}`
-                  : '/avatar.png'}
+  src={
+    question.userId?.avatar
+      ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+      : '/avatar.png'
+  }
+  alt="avatar"
+  className="avatar small-avatar"
+/>
 
-                alt="avatar"
-                className="avatar small-avatar"
-              />
               <span className="username">{question.userId?.username || "User"}</span>
             </div>
           </div>
@@ -407,19 +409,18 @@ const highlightMentions = (html) => {
             <div className="answer-footer-horizontal">
               <div className="question-user-inline">
                 <img
-                  // src={ans.userId?.avatar?.startsWith('/api/')
-                  //   ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
-                  //   : ans.userId?.avatar
-                  //     ? `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${ans.userId.avatar}`
-                  //     : '/avatar.png'}
-                  src={ans.userId?.avatar
-                    ? `${import.meta.env.VITE_API_BASE_URL}/api/uploads/${ans.userId.avatar}`
-                    : '/avatar.png'}
+  src={
+    ans.userId?.avatar
+      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
+      : '/avatar.png'
+  }
+  alt="avatar"
+  className="avatar small-avatar"
+/>
 
 
-                  alt="avatar"
-                  className="avatar small-avatar"
-                />
+
+                 
                 <span className="username">{ans.userId?.username || "User"}</span>
               </div>
 
@@ -477,22 +478,22 @@ const highlightMentions = (html) => {
             >
               {mentionSuggestions.map((user, idx) => (
                 <div
-  key={user._id}
-  className="mention-suggestion"
-  onMouseDown={(e) => {
-    e.preventDefault(); 
-    insertMention(user); 
-  }}
->
-  <img
-    src={user.avatar?.startsWith('/api/')
-      ? `${import.meta.env.VITE_API_BASE_URL}${user.avatar}`
-      : user.avatar || '/avatar.png'}
-    alt="avatar"
-    className="avatar small-avatar"
-  />
-  @{user.username}
-</div>
+                  key={user._id}
+                  className="mention-suggestion"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); 
+                    insertMention(user); 
+                  }}
+                >
+                  <img
+                    src={user.avatar?.startsWith('/api/')
+                      ? `${import.meta.env.VITE_API_BASE_URL}${user.avatar}`
+                      : user.avatar || '/avatar.png'}
+                    alt="avatar"
+                    className="avatar small-avatar"
+                  />
+                  @{user.username}
+                </div>
 
               ))}
             </div>
