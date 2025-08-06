@@ -54,10 +54,11 @@ const statusBadge = {
         
             <img
               src={
-                question.userId?.avatar
-                  ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
-                  : '/avatar.png'
-              }
+  question.userId?.avatar?.startsWith('/api/')
+    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+    : question.userId?.avatar || '/avatar.png'
+}
+
               className="avatar"
               onError={(e) => {
                 e.target.onerror = null;
