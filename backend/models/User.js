@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email:    { type: String, required: true, unique: true },
-  password: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   avatar: { type: String, default: '/avatar.png' },
   role:     { type: String, enum: ['user', 'admin'], default: 'user' },
   reputation: { type: Number, default: 0 },
@@ -13,11 +13,15 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function (next) {
+  if (this.isModified('email')) {
+    this.email = this.email.toLowerCase();
+  }
   if (this.password && this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
+
 
 UserSchema.methods.comparePassword = function (inputPwd) {
   return bcrypt.compare(inputPwd, this.password);

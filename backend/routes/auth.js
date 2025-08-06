@@ -11,10 +11,12 @@ const verifyToken = require('../middlewares/verifyToken');
 router.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const normalizedEmail = email.toLowerCase();
+
 
     // Check if username or email already exists BEFORE saving
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+      $or: [{ email: normalizedEmail }, { username }]
     });
     if (existingUser) {
       return res.status(400).json({ error: 'Username or email already exists' });
@@ -23,8 +25,8 @@ router.post('/signup', async (req, res) => {
     // Create a new User instance (will trigger pre-save hook for password hashing)
     const newUser = new User({
       username,
-      email,
-      password,  
+      email: normalizedEmail,
+      password,
     });
     await newUser.save(); 
 
@@ -57,7 +59,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password, remember } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     if (!user.password) return res.status(400).json({ error: 'Please log in using Google' });
     const isMatch = await user.comparePassword(password);
