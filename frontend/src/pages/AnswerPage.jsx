@@ -296,7 +296,8 @@ const AnswerPage = () => {
 };
 
 const highlightMentions = (html) => {
-  return html.replace(/@([\w]+)/g, '<span class="mention-highlight">@$1</span>');
+  return html.replace(/@([a-zA-Z0-9._-]+)/g, '<span class="mention-highlight">@$1</span>');
+
 };
 
   return (
@@ -369,15 +370,17 @@ const highlightMentions = (html) => {
             </div>
 
             <div className="question-user-inline">
-              <img
-                src={
-                  question.userId?.avatar
-                    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
-                    : '/avatar.png'
-                }
-                alt="avatar"
-                className="avatar small-avatar"
-              />
+             <img
+  src={
+    question.userId?.avatar?.startsWith('/api/')
+      ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+      : question.userId?.avatar || '/avatar.png'
+  }
+  alt="avatar"
+  className="avatar"
+/>
+
+
 
               <span className="username">{question.userId?.username || "User"}</span>
             </div>
@@ -409,14 +412,16 @@ const highlightMentions = (html) => {
             <div className="answer-footer-horizontal">
               <div className="question-user-inline">
                 <img
-                  src={
-                    ans.userId?.avatar
-                      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
-                      : '/avatar.png'
-                  }
-                  alt="avatar"
-                  className="avatar small-avatar"
-                />
+  src={
+    ans.userId?.avatar?.startsWith('/api/')
+      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
+      : ans.userId?.avatar || '/avatar.png'
+  }
+  alt="avatar"
+  className="avatar"
+/>
+
+
 
 
 

@@ -36,10 +36,11 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
   const host = `${protocol}://${req.get('host')}`;
 
   res.json({ 
-    data: { 
-      link: `${host}/api/uploads/${uploadStream.id}` 
-    } 
-  });
+  data: { 
+    link: `/api/uploads/${uploadStream.id}` // ✅ relative path only
+  } 
+});
+
 });
 
 
