@@ -46,7 +46,13 @@ const UserNavbar = () => {
           <Link to="/profile" className="icon profile-icon" aria-label="Profile">
             {user ? (
               <img
-  src={user.avatar ? user.avatar : '/avatar.png'} // use a valid default
+  // src={user.avatar ? user.avatar : '/avatar.png'} // 
+  
+  src={
+    user.avatar?.startsWith('http')
+      ? user.avatar
+      : `https://stackit-backend-6nrt.onrender.com${user.avatar || '/avatar.png'}`
+  }
   alt="User Avatar"
   style={{
     height: '32px',

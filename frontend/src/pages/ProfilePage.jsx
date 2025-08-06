@@ -163,7 +163,14 @@ useEffect(() => {
   <section className="card user-info-card">
     <div className="avatar-section">
         <img
-          src={user.avatar ? `${user.avatar}?t=${Date.now()}` : '/avatar.png'}
+          // src={user.avatar ? `${user.avatar}?t=${Date.now()}` : '/avatar.png'}
+          
+  src={
+    user.avatar?.startsWith('http')
+      ? `${user.avatar}?t=${Date.now()}`
+      : `https://stackit-backend-6nrt.onrender.com${user.avatar || '/avatar.png'}?t=${Date.now()}`
+  }
+
           alt="Avatar"
           className="clickable-avatar"
           onClick={() => fileInputRef.current.click()}

@@ -37,7 +37,8 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
 
   res.json({ 
   data: { 
-    link: `/api/uploads/${uploadStream.id}` // ✅ relative path only
+    // link: `/api/uploads/${uploadStream.id}` // ✅ relative path only
+    link: `${host}/api/uploads/${uploadStream.id}`
   } 
 });
 
