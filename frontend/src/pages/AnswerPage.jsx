@@ -370,14 +370,14 @@ const highlightMentions = (html) => {
 
             <div className="question-user-inline">
               <img
-  src={
-    question.userId?.avatar
-      ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
-      : '/avatar.png'
-  }
-  alt="avatar"
-  className="avatar small-avatar"
-/>
+                src={
+                  question.userId?.avatar
+                    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+                    : '/avatar.png'
+                }
+                alt="avatar"
+                className="avatar small-avatar"
+              />
 
               <span className="username">{question.userId?.username || "User"}</span>
             </div>
@@ -409,14 +409,14 @@ const highlightMentions = (html) => {
             <div className="answer-footer-horizontal">
               <div className="question-user-inline">
                 <img
-  src={
-    ans.userId?.avatar
-      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
-      : '/avatar.png'
-  }
-  alt="avatar"
-  className="avatar small-avatar"
-/>
+                  src={
+                    ans.userId?.avatar
+                      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
+                      : '/avatar.png'
+                  }
+                  alt="avatar"
+                  className="avatar small-avatar"
+                />
 
 
 

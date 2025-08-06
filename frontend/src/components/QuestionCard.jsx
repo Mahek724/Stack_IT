@@ -51,20 +51,12 @@ const statusBadge = {
             ))}
           </div>
           <div className="author">
-            {/* <img
-              src={question.userId?.avatar || '/avatar.png'}
-              className="avatar"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = '/avatar.png';
-              }}
-              alt="avatar"
-            /> */}
+        
             <img
               src={
-                question.userId?.avatar?.startsWith('http')
-                  ? question.userId.avatar
-                  : `https://stackit-backend-6nrt.onrender.com/api/uploads/${question.userId?.avatar}`
+                question.userId?.avatar
+                  ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+                  : '/avatar.png'
               }
               className="avatar"
               onError={(e) => {
@@ -73,6 +65,7 @@ const statusBadge = {
               }}
               alt="avatar"
             />
+
 
 
             <span className="username">{question.userId?.username || 'User'}</span>
