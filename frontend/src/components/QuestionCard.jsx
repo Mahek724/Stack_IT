@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import '../assets/css/questionCard.css';
 
 const QuestionCard = ({ question }) => {
-  // const upvotes = question.upvotes || [];
-  // const downvotes = question.downvotes || [];
+  const upvotes = question.upvotes || [];
+  const downvotes = question.downvotes || [];
   const answers = question.answers || [];
   const netVotes = upvotes.length - downvotes.length;
 
