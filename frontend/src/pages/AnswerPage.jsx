@@ -353,14 +353,15 @@ const highlightMentions = (html) => {
             <div className="question-vote-block">
               <button
                 className={`vote-icon ${question.upvotes.includes(user?._id) ? 'active-up' : ''}`}
-                onClick={() => handleVote(id, 'upvote', true)}
+                onClick={() => handleVote(question._id, 'upvote')}
               > 👍 </button>
+
 
               <div className="vote-count">{question.upvotes.length - question.downvotes.length}</div>
 
               <button
                 className={`vote-icon ${question.downvotes.includes(user?._id) ? 'active-down' : ''}`}
-                onClick={() => handleVote(id, 'downvote', true)}
+                onClick={() => handleVote(question._id, 'downvote')}
               > 👎 </button>
             </div>
 
@@ -393,14 +394,14 @@ const highlightMentions = (html) => {
             <div className="answer-vote-block">
               <button
                 className={`vote-icon ${ans.upvotes.includes(user?._id) ? 'active-up' : ''}`}
-                onClick={() => handleVote(ans._id, 'upvote')}
+                onClick={() => handleVote(ans._id, 'upvote', true)}
               > 👍 </button>
 
               <div className="vote-count">{ans.upvotes.length - ans.downvotes.length}</div>
 
               <button
                 className={`vote-icon ${ans.downvotes.includes(user?._id) ? 'active-down' : ''}`}
-                onClick={() => handleVote(ans._id, 'downvote')}
+                onClick={() => handleVote(ans._id, 'downvote', true)}
               > 👎 </button>
             </div>
 
