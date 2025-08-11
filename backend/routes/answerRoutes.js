@@ -73,44 +73,98 @@ if (mentionedUsernames) {
 });
 
 // up/down Vote on an answer
+// answer.js (vote handler replacement)
+// up/down Vote on an answer
 router.post('/vote/:answerId', verifyToken, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { type: voteType } = req.body;
+    const userId = req.user.id;
+    const { type: voteType } = req.body; // 'upvote' or 'downvote'
     const answerId = req.params.answerId;
 
     const answer = await Answer.findById(answerId);
     if (!answer) return res.status(404).json({ error: 'Answer not found' });
 
-    const opposite = voteType === 'upvote' ? 'downvote' : 'upvote';
-    const hasOpposite = answer[opposite + 's'].includes(userId);
-    if (hasOpposite) {
-      answer[opposite + 's'] = answer[opposite + 's'].filter(id => id.toString() !== userId.toString());
+    const hasUpvoted = (answer.upvotes || []).some(id => id.toString() === userId);
+    const hasDownvoted = (answer.downvotes || []).some(id => id.toString() === userId);
+
+    if (voteType === 'upvote') {
+      if (hasUpvoted) {
+        answer.upvotes = answer.upvotes.filter(id => id.toString() !== userId);
+        await Vote.deleteOne({ userId, answerId: answer._id });
+      } else {
+        answer.upvotes.push(userId);
+        if (hasDownvoted) answer.downvotes = answer.downvotes.filter(id => id.toString() !== userId);
+        await Vote.findOneAndUpdate(
+          { userId, answerId: answer._id },
+          { userId, answerId: answer._id, type: 'upvote' },
+          { upsert: true, new: true }
+        );
+      }
+    } else if (voteType === 'downvote') {
+      if (hasDownvoted) {
+        answer.downvotes = answer.downvotes.filter(id => id.toString() !== userId);
+        await Vote.deleteOne({ userId, answerId: answer._id });
+      } else {
+        answer.downvotes.push(userId);
+        if (hasUpvoted) answer.upvotes = answer.upvotes.filter(id => id.toString() !== userId);
+        await Vote.findOneAndUpdate(
+          { userId, answerId: answer._id },
+          { userId, answerId: answer._id, type: 'downvote' },
+          { upsert: true, new: true }
+        );
+      }
+    } else {
+      return res.status(400).json({ error: 'Invalid vote type' });
     }
 
-    const hasVoted = answer[voteType + 's'].includes(userId);
-    if (hasVoted) {
-      answer[voteType + 's'] = answer[voteType + 's'].filter(id => id.toString() !== userId.toString());
-      await Vote.deleteOne({ userId, answerId });
-    } else {
-      answer[voteType + 's'].push(userId);
-      await Vote.findOneAndUpdate(
-        { userId, answerId },
-        { userId, answerId },
-        { upsert: true, new: true }
-      );
-    }
     await answer.save();
 
-    const totalVotes = await Vote.countDocuments({ userId });
-    await User.findByIdAndUpdate(userId, { totalVotes });
+    const updated = await Answer.findById(answerId).populate('userId', 'username avatar').lean();
+    const upvotes = (updated.upvotes || []).length;
+    const downvotes = (updated.downvotes || []).length;
+    const userVote = (updated.upvotes || []).some(id => id.toString() === userId)
+      ? 'upvote'
+      : (updated.downvotes || []).some(id => id.toString() === userId)
+      ? 'downvote'
+      : null;
 
-    res.json(answer);
+    // ✅ Recompute FULL owner stats (matches /api/profile/me)
+    const ownerId = updated.userId && updated.userId._id ? updated.userId._id : updated.userId;
+    const ownerQuestions = await Question.find({ userId: ownerId });
+    const ownerAnswers = await Answer.find({ userId: ownerId });
+
+    const totalUpvotesOnQuestions = ownerQuestions.reduce((s, q) => s + ((q.upvotes || []).length), 0);
+    const totalDownvotesOnQuestions = ownerQuestions.reduce((s, q) => s + ((q.downvotes || []).length), 0);
+    const totalUpvotesOnAnswers = ownerAnswers.reduce((s, a) => s + ((a.upvotes || []).length), 0);
+    const totalDownvotesOnAnswers = ownerAnswers.reduce((s, a) => s + ((a.downvotes || []).length), 0);
+
+    const ownerStats = {
+      totalUpvotes: totalUpvotesOnQuestions + totalUpvotesOnAnswers,
+      totalDownvotes: totalDownvotesOnQuestions + totalDownvotesOnAnswers,
+      totalUpvotesOnQuestions,
+      totalDownvotesOnQuestions,
+      totalUpvotesOnAnswers,
+      totalDownvotesOnAnswers,
+      totalVotes: (totalUpvotesOnQuestions + totalUpvotesOnAnswers) -
+                  (totalDownvotesOnQuestions + totalDownvotesOnAnswers)
+    };
+
+    res.json({
+      success: true,
+      answer: updated,
+      upvotes,
+      downvotes,
+      userVote,
+      ownerStats // ✅ Now frontend can instantly update profile stats
+    });
   } catch (error) {
-    console.error(error);
+    console.error('❌ Vote error (answer):', error);
     res.status(500).json({ error: 'Failed to vote' });
   }
 });
+
+
+
 
 // Accept an answer for a question
 router.post('/accept/:answerId', verifyToken, async (req, res) => {

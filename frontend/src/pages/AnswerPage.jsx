@@ -87,41 +87,37 @@ const AnswerPage = () => {
 }, [answers]);
 
   // Handle vote logic
-  const handleVote = async (targetId, type, isQuestion = false) => {
-    if (!user) {
-      toast.info("Login required to vote");
-      navigate('/login');
-      return;
-    }
+  const handleVote = async (id, type, isAnswer = false) => {
+  try {
+    const url = isAnswer
+      ? `/api/answers/${id}/vote`
+      : `/api/questions/${id}/vote`;
 
-    try {
-      const url = isQuestion
-        ? `/api/questions/${targetId}/vote`
-        : `/api/answers/vote/${targetId}`;
+    const voteRes = await axios.post(url, { type }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
 
-      await axios.post(url, { type }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-
-      const [questionRes, answersRes] = await Promise.all([
-        axios.get(`/api/questions/${id}`),
-        axios.get(`/api/answers/question/${id}`)
-      ]);
-      setQuestion(questionRes.data);
-      setAnswers(answersRes.data);
-
-      const token = localStorage.getItem('token');
-      const res = await axios.get('/api/profile/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    // ✅ Instantly update profile stats using the backend response
+    if (voteRes.data && voteRes.data.ownerStats) {
       window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
-        detail: res.data.stats
+        detail: voteRes.data.ownerStats
       }));
-    } catch (err) {
-      toast.error("Vote failed");
-      console.error(err);
     }
-  };
+
+    // ✅ Refresh Q&A data so the vote counts display immediately
+    const [questionRes, answersRes] = await Promise.all([
+      axios.get(`/api/questions/${question._id}`),
+      axios.get(`/api/answers/question/${question._id}`)
+    ]);
+
+    setQuestion(questionRes.data);
+    setAnswers(answersRes.data);
+
+  } catch (err) {
+    console.error('Vote error:', err);
+  }
+};
+
 
   // Handle answer submission
   const handleSubmitAnswer = async () => {

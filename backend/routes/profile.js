@@ -9,21 +9,20 @@ const Vote = require('../models/Vote');
 
 // Get my profile
 router.get('/me', verifyToken, async (req, res) => {
-  console.log("Decoded userId:", req.userId);
-
   try {
     const user = await User.findById(req.userId);
+
     const questions = await Question.find({ userId: req.userId });
     const answers = await Answer.find({ userId: req.userId });
 
-    // Split votes by type
-    const totalUpvotesOnQuestions = questions.reduce((sum, q) => sum + q.upvotes.length, 0);
-    const totalDownvotesOnQuestions = questions.reduce((sum, q) => sum + q.downvotes.length, 0);
-    const totalUpvotesOnAnswers = answers.reduce((sum, a) => sum + a.upvotes.length, 0);
-    const totalDownvotesOnAnswers = answers.reduce((sum, a) => sum + a.downvotes.length, 0);
+    const totalUpvotesOnQuestions = questions.reduce((sum, q) => sum + (q.upvotes?.length || 0), 0);
+    const totalDownvotesOnQuestions = questions.reduce((sum, q) => sum + (q.downvotes?.length || 0), 0);
+    const totalUpvotesOnAnswers = answers.reduce((sum, a) => sum + (a.upvotes?.length || 0), 0);
+    const totalDownvotesOnAnswers = answers.reduce((sum, a) => sum + (a.downvotes?.length || 0), 0);
+
     const totalUpvotes = totalUpvotesOnQuestions + totalUpvotesOnAnswers;
     const totalDownvotes = totalDownvotesOnQuestions + totalDownvotesOnAnswers;
-    const totalVotes = totalUpvotes - totalDownvotes;
+
     const accepted = questions.filter(q => q.acceptedAnswer).length;
 
     res.json({
@@ -32,7 +31,7 @@ router.get('/me', verifyToken, async (req, res) => {
         totalQuestions: questions.length,
         totalAnswers: answers.length,
         acceptedAnswers: accepted,
-        totalVotes, 
+        totalVotes: totalUpvotes - totalDownvotes,
         totalUpvotes,
         totalDownvotes,
         totalUpvotesOnQuestions,
@@ -46,6 +45,7 @@ router.get('/me', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to load profile stats' });
   }
 });
+
 
 
 // Get My Questions
