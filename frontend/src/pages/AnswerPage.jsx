@@ -90,21 +90,19 @@ const AnswerPage = () => {
   const handleVote = async (id, type, isAnswer = false) => {
   try {
     const url = isAnswer
-      ? `/api/answers/${id}/vote`
-      : `/api/questions/${id}/vote`;
+      ? `/api/answers/vote/${id}`   // ✅ fixed order
+      : `/api/questions/vote/${id}`; // Make sure your questions vote route matches too
 
     const voteRes = await axios.post(url, { type }, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
 
-    // ✅ Instantly update profile stats using the backend response
     if (voteRes.data && voteRes.data.ownerStats) {
       window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
         detail: voteRes.data.ownerStats
       }));
     }
 
-    // ✅ Refresh Q&A data so the vote counts display immediately
     const [questionRes, answersRes] = await Promise.all([
       axios.get(`/api/questions/${question._id}`),
       axios.get(`/api/answers/question/${question._id}`)
@@ -117,6 +115,7 @@ const AnswerPage = () => {
     console.error('Vote error:', err);
   }
 };
+
 
 
   // Handle answer submission
