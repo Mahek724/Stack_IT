@@ -89,9 +89,9 @@ const AnswerPage = () => {
   // Handle vote logic
   const handleVote = async (id, type, isAnswer = false) => {
   try {
-    const url = isAnswer
-      ? `/api/answers/vote/${id}`   // ✅ fixed order
-      : `/api/questions/vote/${id}`; // Make sure your questions vote route matches too
+   const url = isAnswer
+      ? `/api/answers/vote/${id}`    // matches /api/answers/vote/:answerId
+      : `/api/questions/${id}/vote`; // Make sure your questions vote route matches too
 
     const voteRes = await axios.post(url, { type }, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
