@@ -20,63 +20,51 @@ const ProfilePage = () => {
   const [showVoteDetails, setShowVoteDetails] = useState(false);
 
 
+// ...other code
 useEffect(() => {
-  const handleStatsUpdated = (e) => {
-    if (e.detail) {
-      setStats(prev => ({
-        ...prev,
-        ...e.detail
-      }));
-    }
+  const handleStatsUpdated = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    axios.get('/api/profile/me', config)
+      .then(res => {
+        if (res.data && res.data.user) {
+          setStats(res.data.stats);
+        }
+      });
   };
 
   window.addEventListener('profileStatsUpdated', handleStatsUpdated);
   return () => window.removeEventListener('profileStatsUpdated', handleStatsUpdated);
 }, []);
 
-  
-
-  useEffect(() => {
+useEffect(() => {
   const token = localStorage.getItem('token');
   if (!token) return;
 
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
   axios.get('/api/profile/me', config)
-  .then(res => {
-    if (res.data && res.data.user) {
-      setUser(res.data.user);
-      setNewUsername(res.data.user.username || '');
-      setStats(res.data.stats);  
-    }
-  })
-
+    .then(res => {
+      if (res.data && res.data.user) {
+        setUser(res.data.user);
+        setNewUsername(res.data.user.username || '');
+        setStats(res.data.stats);  
+      }
+    })
     .catch(err => console.error("Error fetching profile:", err));
 
-    axios.get('/api/profile/my-questions', config)
+  axios.get('/api/profile/my-questions', config)
     .then(res => {
       const allQuestions = res.data;
       setQuestions(allQuestions);
-
-      const totalVotes = allQuestions.reduce(
-        (sum, q) => sum + (q.upvotes.length - q.downvotes.length),
-        0
-      );
-      const acceptedAnswers = allQuestions.filter(q => q.acceptedAnswer).length;
-
-      setStats(prev => ({
-        ...prev,
-        totalQuestions: allQuestions.length,
-        acceptedAnswers
-      }));
+      // DO NOT CALL setStats HERE!
     })
-
     .catch(err => console.error("Error fetching questions:", err));
 
   axios.get('/api/profile/most-viewed', config)
-  .then(res => setMostViewed(res.data))
-  .catch(err => console.error("Error fetching most viewed question", err));
-
+    .then(res => setMostViewed(res.data))
+    .catch(err => console.error("Error fetching most viewed question", err));
 
   axios.get('/api/profile/my-votes', config)
     .then(res => setVotedQuestions(res.data))
@@ -86,7 +74,6 @@ useEffect(() => {
     .then(res => setAnsweredQuestions(res.data))
     .catch(err => console.error("Error fetching answered questions", err));
 }, []);
-
 
   const handleProfileUpdate = async (selectedFile) => {
   const token = localStorage.getItem('token');
@@ -309,7 +296,7 @@ useEffect(() => {
     className="activity-header"
     onClick={() => setShowVotes(prev => !prev)}
   >
-    <strong>Recently Upvoted/Downvoted Questions</strong>
+    <strong>Recently Upvoted/Downvoted Questions/Answers</strong>
     <span>{showVotes ? '▲' : '▼'}</span>
   </div>
   {showVotes && (

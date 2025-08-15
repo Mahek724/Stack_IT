@@ -11,11 +11,9 @@ const Vote = require('../models/Vote');
 // Get my profile with correct vote summary
 router.get('/me', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-
-    // Fetch user's questions & answers
-    const questions = await Question.find({ userId: req.userId });
-    const answers = await Answer.find({ userId: req.userId });
+    const user = await User.findById(req.user.id);
+    const questions = await Question.find({ userId: req.user.id });
+    const answers = await Answer.find({ userId: req.user.id });
 
     const questionIds = questions.map(q => q._id);
     const answerIds = answers.map(a => a._id);
