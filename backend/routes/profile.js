@@ -8,43 +8,54 @@ const Answer = require('../models/Answer');
 const Vote = require('../models/Vote');
 
 // Get my profile
+// Get my profile with correct vote summary
 router.get('/me', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
 
+    // Fetch user's questions & answers
     const questions = await Question.find({ userId: req.userId });
     const answers = await Answer.find({ userId: req.userId });
 
-    const totalUpvotesOnQuestions = questions.reduce((sum, q) => sum + (q.upvotes?.length || 0), 0);
-    const totalDownvotesOnQuestions = questions.reduce((sum, q) => sum + (q.downvotes?.length || 0), 0);
-    const totalUpvotesOnAnswers = answers.reduce((sum, a) => sum + (a.upvotes?.length || 0), 0);
-    const totalDownvotesOnAnswers = answers.reduce((sum, a) => sum + (a.downvotes?.length || 0), 0);
+    const questionIds = questions.map(q => q._id);
+    const answerIds = answers.map(a => a._id);
 
-    const totalUpvotes = totalUpvotesOnQuestions + totalUpvotesOnAnswers;
-    const totalDownvotes = totalDownvotesOnQuestions + totalDownvotesOnAnswers;
+    // Count votes directly from Vote collection
+    const [upvotesOnQuestions, downvotesOnQuestions, upvotesOnAnswers, downvotesOnAnswers] =
+      await Promise.all([
+        Vote.countDocuments({ questionId: { $in: questionIds }, type: 'upvote' }),
+        Vote.countDocuments({ questionId: { $in: questionIds }, type: 'downvote' }),
+        Vote.countDocuments({ answerId: { $in: answerIds }, type: 'upvote' }),
+        Vote.countDocuments({ answerId: { $in: answerIds }, type: 'downvote' })
+      ]);
 
-    const accepted = questions.filter(q => q.acceptedAnswer).length;
+    const totalUpvotes = upvotesOnQuestions + upvotesOnAnswers;
+    const totalDownvotes = downvotesOnQuestions + downvotesOnAnswers;
+
+    const acceptedAnswersCount = answers.filter(a => a.isAccepted).length;
 
     res.json({
       user,
       stats: {
         totalQuestions: questions.length,
         totalAnswers: answers.length,
-        acceptedAnswers: accepted,
+        acceptedAnswers: acceptedAnswersCount,
         totalVotes: totalUpvotes - totalDownvotes,
         totalUpvotes,
         totalDownvotes,
-        totalUpvotesOnQuestions,
-        totalDownvotesOnQuestions,
-        totalUpvotesOnAnswers,
-        totalDownvotesOnAnswers
+        totalUpvotesOnQuestions: upvotesOnQuestions,
+        totalDownvotesOnQuestions: downvotesOnQuestions,
+        totalUpvotesOnAnswers: upvotesOnAnswers,
+        totalDownvotesOnAnswers: downvotesOnAnswers
       }
     });
+
   } catch (error) {
-    console.error('Error in /me route:', error);
+    console.error('❌ Error in /me route:', error);
     res.status(500).json({ error: 'Failed to load profile stats' });
   }
 });
+
 
 
 

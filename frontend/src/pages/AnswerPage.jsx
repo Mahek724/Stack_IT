@@ -408,19 +408,14 @@ const highlightMentions = (html) => {
             <div className="answer-footer-horizontal">
               <div className="question-user-inline">
                 <img
-  src={
-    ans.userId?.avatar?.startsWith('/api/')
-      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
-      : ans.userId?.avatar || '/avatar.png'
-  }
-  alt="avatar"
-  className="avatar"
-/>
-
-
-
-
-
+                  src={
+                    ans.userId?.avatar?.startsWith('/api/')
+                      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
+                      : ans.userId?.avatar || '/avatar.png'
+                  }
+                  alt="avatar"
+                  className="avatar"
+                />
                  
                 <span className="username">{ans.userId?.username || "User"}</span>
               </div>

@@ -178,9 +178,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
 });
 
 // Vote on a question
-// question.js (only the vote route shown)
-// question.js (only the vote route shown)
-// Vote on a question
 router.post('/:id/vote', verifyToken, async (req, res) => {
   try {
     const { type: voteType } = req.body; // 'upvote' or 'downvote'
