@@ -60,7 +60,7 @@ router.get('/me', verifyToken, async (req, res) => {
 // Get My Questions
 router.get('/my-questions', verifyToken, async (req, res) => {
   try {
-    const questions = await Question.find({ userId: req.userId })
+    const questions = await Question.find({ userId: req.user.id })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -93,14 +93,14 @@ if (req.body.email && req.body.email.trim() !== '') {
 if (req.body.avatar && req.body.avatar.trim() !== '') {
   updateData.avatar = req.body.avatar; // GridFS URL
 }
-  await User.findByIdAndUpdate(req.userId, updateData);
+  await User.findByIdAndUpdate(req.user.id, updateData);
   res.json({ message: 'Profile updated' });
 });
 
 // Get my vote history
 router.get('/my-votes', verifyToken, async (req, res) => {
   try {
-    const votes = await Vote.find({ userId: req.userId })
+    const votes = await Vote.find({ userId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('questionId')
@@ -118,7 +118,7 @@ router.get('/my-votes', verifyToken, async (req, res) => {
 // Get most viewed question by the user
 router.get('/most-viewed', verifyToken, async (req, res) => {
   try {
-    const topQuestion = await Question.findOne({ userId: req.userId })
+    const topQuestion = await Question.findOne({ userId: req.user.id })
       .sort({ views: -1 })
       .lean(); 
 
@@ -142,7 +142,7 @@ router.post('/logout-all', verifyToken, async (req, res) => {
 // Get answered questions
 router.get('/my-answers', verifyToken, async (req, res) => {
   try {
-    const answers = await Answer.find({ userId: req.userId })
+    const answers = await Answer.find({ userId: req.user.id })
       .populate('questionId')
       .sort({ createdAt: -1 })
       .limit(5);
