@@ -9,6 +9,7 @@ const Vote = require('../models/Vote');
 
 // Get my profile
 // Get my profile with correct vote summary
+// Get my profile with correct vote summary
 router.get('/me', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -19,17 +20,17 @@ router.get('/me', verifyToken, async (req, res) => {
     const answerIds = answers.map(a => a._id);
 
     // Votes received
-    const [upvotesOnQuestions, downvotesOnQuestions, upvotesOnAnswers, downvotesOnAnswers] =
-      await Promise.all([
-        Vote.countDocuments({ questionId: { $in: questionIds }, type: 'upvote' }),
-        Vote.countDocuments({ questionId: { $in: questionIds }, type: 'downvote' }),
-        Vote.countDocuments({ answerId: { $in: answerIds }, type: 'upvote' }),
-        Vote.countDocuments({ answerId: { $in: answerIds }, type: 'downvote' })
-      ]);
-
-    const totalUpvotes = upvotesOnQuestions + upvotesOnAnswers;
-    const totalDownvotes = downvotesOnQuestions + downvotesOnAnswers;
-    const acceptedAnswersCount = answers.filter(a => a.isAccepted).length;
+    const [
+      upvotesOnQuestions,
+      downvotesOnQuestions,
+      upvotesOnAnswers,
+      downvotesOnAnswers
+    ] = await Promise.all([
+      Vote.countDocuments({ questionId: { $in: questionIds }, type: 'upvote' }),
+      Vote.countDocuments({ questionId: { $in: questionIds }, type: 'downvote' }),
+      Vote.countDocuments({ answerId: { $in: answerIds }, type: 'upvote' }),
+      Vote.countDocuments({ answerId: { $in: answerIds }, type: 'downvote' })
+    ]);
 
     // Votes cast (votes you made)
     const [
@@ -48,23 +49,34 @@ router.get('/me', verifyToken, async (req, res) => {
       Vote.countDocuments({ userId: req.user.id, type: 'downvote', answerId: { $ne: null } }),
     ]);
 
+    // Totals are now SUMS, not differences
+    const totalUpvotes = upvotesOnQuestions + upvotesOnAnswers;
+    const totalDownvotes = downvotesOnQuestions + downvotesOnAnswers;
+    const totalVotesReceived = totalUpvotes + totalDownvotes; // sum, not diff!
+    const totalVotesCast = votesCastUp + votesCastDown;       // sum, not diff!
+    const acceptedAnswersCount = answers.filter(a => a.isAccepted).length;
+
     res.json({
       user,
       stats: {
+        // Basic stats
         totalQuestions: questions.length,
         totalAnswers: answers.length,
         acceptedAnswers: acceptedAnswersCount,
-        totalVotes: totalUpvotes - totalDownvotes,
+
+        // Votes Received
         totalUpvotes,
         totalDownvotes,
+        totalVotesReceived,
         totalUpvotesOnQuestions: upvotesOnQuestions,
         totalDownvotesOnQuestions: downvotesOnQuestions,
         totalUpvotesOnAnswers: upvotesOnAnswers,
         totalDownvotesOnAnswers: downvotesOnAnswers,
-        // Votes you cast:
-        totalVotesCast: votesCastUp - votesCastDown,
+
+        // Votes Cast
         totalUpvotesCast: votesCastUp,
         totalDownvotesCast: votesCastDown,
+        totalVotesCast,
         totalUpvotesOnQuestionsCast: votesCastUpQuestions,
         totalDownvotesOnQuestionsCast: votesCastDownQuestions,
         totalUpvotesOnAnswersCast: votesCastUpAnswers,

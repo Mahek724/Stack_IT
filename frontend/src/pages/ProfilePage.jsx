@@ -265,8 +265,8 @@ useEffect(() => {
 
   <li>
   <i className="fas fa-thumbs-up icon"></i>
-  <span>Total Votes Received:</span>
-  <strong>{stats.totalVotes}</strong>
+  <span>Votes:</span>
+  {/* <strong>{stats.totalVotes}</strong> */}
   <div style={{ marginTop: '0.5rem' }}>
   <button
     style={{
@@ -443,20 +443,56 @@ useEffect(() => {
       <span className="close-btn" onClick={() => setShowVoteDetails(false)}>×</span>
       <h2>Voting Summary</h2>
 
-      <h3>Votes Received</h3>
+      {/* Votes Received */}
+      <h3 style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        Votes Received
+        <button
+          style={{
+            background: "linear-gradient(90deg, #4f46e5, #6366f1)",
+            color: "#fff",
+            padding: "6px 14px",
+            border: "none",
+            borderRadius: "20px",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+            cursor: "default",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
+          }}
+        >
+          Total: {stats.totalVotesReceived}
+        </button>
+      </h3>
       <ul className="vote-details-dropdown">
-        <li><b>👍 Total Upvotes Received:</b> <strong>{stats.totalUpvotes}</strong></li>
-        <li><b>👎 Total Downvotes Received:</b> <strong>{stats.totalDownvotes}</strong></li>
+        <li><b>👍 Total Upvotes:</b> <strong>{stats.totalUpvotes}</strong></li>
+        <li><b>👎 Total Downvotes:</b> <strong>{stats.totalDownvotes}</strong></li>
         <li>👍 On Questions: <strong>{stats.totalUpvotesOnQuestions}</strong></li>
         <li>👎 On Questions: <strong>{stats.totalDownvotesOnQuestions}</strong></li>
         <li>👍 On Answers: <strong>{stats.totalUpvotesOnAnswers}</strong></li>
         <li>👎 On Answers: <strong>{stats.totalDownvotesOnAnswers}</strong></li>
       </ul>
 
-      <h3>Votes Cast</h3>
+      {/* Votes Cast */}
+      <h3 style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "2rem" }}>
+        Votes Cast
+        <button
+          style={{
+            background: "linear-gradient(90deg, #059669, #10b981)",
+            color: "#fff",
+            padding: "6px 14px",
+            border: "none",
+            borderRadius: "20px",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+            cursor: "default",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
+          }}
+        >
+          Total: {stats.totalVotesCast}
+        </button>
+      </h3>
       <ul className="vote-details-dropdown">
-        <li><b>👍 Total Upvotes Cast:</b> <strong>{stats.totalUpvotesCast}</strong></li>
-        <li><b>👎 Total Downvotes Cast:</b> <strong>{stats.totalDownvotesCast}</strong></li>
+        <li><b>👍 Total Upvotes:</b> <strong>{stats.totalUpvotesCast}</strong></li>
+        <li><b>👎 Total Downvotes:</b> <strong>{stats.totalDownvotesCast}</strong></li>
         <li>👍 On Questions: <strong>{stats.totalUpvotesOnQuestionsCast}</strong></li>
         <li>👎 On Questions: <strong>{stats.totalDownvotesOnQuestionsCast}</strong></li>
         <li>👍 On Answers: <strong>{stats.totalUpvotesOnAnswersCast}</strong></li>
