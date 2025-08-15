@@ -18,7 +18,7 @@ router.get('/me', verifyToken, async (req, res) => {
     const questionIds = questions.map(q => q._id);
     const answerIds = answers.map(a => a._id);
 
-    // Count votes directly from Vote collection
+    // Votes received
     const [upvotesOnQuestions, downvotesOnQuestions, upvotesOnAnswers, downvotesOnAnswers] =
       await Promise.all([
         Vote.countDocuments({ questionId: { $in: questionIds }, type: 'upvote' }),
@@ -29,8 +29,24 @@ router.get('/me', verifyToken, async (req, res) => {
 
     const totalUpvotes = upvotesOnQuestions + upvotesOnAnswers;
     const totalDownvotes = downvotesOnQuestions + downvotesOnAnswers;
-
     const acceptedAnswersCount = answers.filter(a => a.isAccepted).length;
+
+    // Votes cast (votes you made)
+    const [
+      votesCastUp,
+      votesCastDown,
+      votesCastUpQuestions,
+      votesCastDownQuestions,
+      votesCastUpAnswers,
+      votesCastDownAnswers
+    ] = await Promise.all([
+      Vote.countDocuments({ userId: req.user.id, type: 'upvote' }),
+      Vote.countDocuments({ userId: req.user.id, type: 'downvote' }),
+      Vote.countDocuments({ userId: req.user.id, type: 'upvote', questionId: { $ne: null } }),
+      Vote.countDocuments({ userId: req.user.id, type: 'downvote', questionId: { $ne: null } }),
+      Vote.countDocuments({ userId: req.user.id, type: 'upvote', answerId: { $ne: null } }),
+      Vote.countDocuments({ userId: req.user.id, type: 'downvote', answerId: { $ne: null } }),
+    ]);
 
     res.json({
       user,
@@ -44,7 +60,15 @@ router.get('/me', verifyToken, async (req, res) => {
         totalUpvotesOnQuestions: upvotesOnQuestions,
         totalDownvotesOnQuestions: downvotesOnQuestions,
         totalUpvotesOnAnswers: upvotesOnAnswers,
-        totalDownvotesOnAnswers: downvotesOnAnswers
+        totalDownvotesOnAnswers: downvotesOnAnswers,
+        // Votes you cast:
+        totalVotesCast: votesCastUp - votesCastDown,
+        totalUpvotesCast: votesCastUp,
+        totalDownvotesCast: votesCastDown,
+        totalUpvotesOnQuestionsCast: votesCastUpQuestions,
+        totalDownvotesOnQuestionsCast: votesCastDownQuestions,
+        totalUpvotesOnAnswersCast: votesCastUpAnswers,
+        totalDownvotesOnAnswersCast: votesCastDownAnswers,
       }
     });
 

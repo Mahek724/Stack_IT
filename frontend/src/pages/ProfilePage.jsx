@@ -265,7 +265,7 @@ useEffect(() => {
 
   <li>
   <i className="fas fa-thumbs-up icon"></i>
-  <span>Total Votes:</span>
+  <span>Total Votes Received:</span>
   <strong>{stats.totalVotes}</strong>
   <div style={{ marginTop: '0.5rem' }}>
   <button
@@ -436,18 +436,31 @@ useEffect(() => {
     Logout
   </button>
 </section>
+
 {showVoteDetails && (
   <div className="modal-overlay" onClick={() => setShowVoteDetails(false)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-content" onClick={e => e.stopPropagation()}>
       <span className="close-btn" onClick={() => setShowVoteDetails(false)}>×</span>
       <h2>Voting Summary</h2>
-      <ul className="vote-details-dropdown" style={{ marginTop: '1rem' }}>
-        <li><span style={{fontWeight: 'bold'}}>👍 Total Upvotes:</span> <strong>{stats.totalUpvotes}</strong></li>
-        <li><span style={{fontWeight: 'bold'}}>👎 Total Downvotes:</span> <strong>{stats.totalDownvotes}</strong></li>
-        <li><span>👍 On Questions:</span> <strong>{stats.totalUpvotesOnQuestions}</strong></li>
-        <li><span>👎 On Questions:</span> <strong>{stats.totalDownvotesOnQuestions}</strong></li>
-        <li><span>👍 On Answers:</span> <strong>{stats.totalUpvotesOnAnswers}</strong></li>
-        <li><span>👎 On Answers:</span> <strong>{stats.totalDownvotesOnAnswers}</strong></li>
+
+      <h3>Votes Received</h3>
+      <ul className="vote-details-dropdown">
+        <li><b>👍 Total Upvotes Received:</b> <strong>{stats.totalUpvotes}</strong></li>
+        <li><b>👎 Total Downvotes Received:</b> <strong>{stats.totalDownvotes}</strong></li>
+        <li>👍 On Questions: <strong>{stats.totalUpvotesOnQuestions}</strong></li>
+        <li>👎 On Questions: <strong>{stats.totalDownvotesOnQuestions}</strong></li>
+        <li>👍 On Answers: <strong>{stats.totalUpvotesOnAnswers}</strong></li>
+        <li>👎 On Answers: <strong>{stats.totalDownvotesOnAnswers}</strong></li>
+      </ul>
+
+      <h3>Votes Cast</h3>
+      <ul className="vote-details-dropdown">
+        <li><b>👍 Total Upvotes Cast:</b> <strong>{stats.totalUpvotesCast}</strong></li>
+        <li><b>👎 Total Downvotes Cast:</b> <strong>{stats.totalDownvotesCast}</strong></li>
+        <li>👍 On Questions: <strong>{stats.totalUpvotesOnQuestionsCast}</strong></li>
+        <li>👎 On Questions: <strong>{stats.totalDownvotesOnQuestionsCast}</strong></li>
+        <li>👍 On Answers: <strong>{stats.totalUpvotesOnAnswersCast}</strong></li>
+        <li>👎 On Answers: <strong>{stats.totalDownvotesOnAnswersCast}</strong></li>
       </ul>
     </div>
   </div>
