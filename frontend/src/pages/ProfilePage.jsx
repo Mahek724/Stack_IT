@@ -134,11 +134,22 @@ useEffect(() => {
 
 
   const calculateReputation = () => {
-    const score = stats.totalVotes + (stats.acceptedAnswers * 10);
-    if (score >= 100) return { label: 'Expert', color: 'gold' };
-    if (score >= 50) return { label: 'Contributor', color: 'dodgerblue' };
-    return { label: 'Beginner', color: 'gray' };
-  };
+  const score =
+    (stats.totalUpvotes || 0) * 5 -
+    (stats.totalDownvotes || 0) * 2 +
+    (stats.acceptedAnswers || 0) * 15;
+
+  if (score >= 100) return { label: 'Expert', color: 'gold' };
+  if (score >= 50) return { label: 'Contributor', color: 'dodgerblue' };
+  return { label: 'Beginner', color: 'gray' };
+};
+
+const getReputationScore = () => {
+  return (stats.totalUpvotes || 0) * 5 -
+         (stats.totalDownvotes || 0) * 2 +
+         (stats.acceptedAnswers || 0) * 15;
+};
+
 
   if (!user) {
     return <div style={{ textAlign: 'center', marginTop: '2rem' }}>Loading profile...</div>;
@@ -168,15 +179,23 @@ useEffect(() => {
     <i className="fas fa-star rep-icon"></i>
     <span className="rep-title">Reputation</span>
   </div>
-  <p className="rep-score">Score: {stats.totalVotes + (stats.acceptedAnswers * 10)}</p>
-  <p className="rep-next">
-    {(() => {
-      const score = stats.totalVotes + (stats.acceptedAnswers * 10);
-      if (score < 50) return `${50 - score} pts to reach Contributor badge!`;
-      if (score < 100) return `${100 - score} pts to reach Expert badge!`;
-      return `You're at the highest badge! 🎉`;
-    })()}
+  <p className="rep-score">
+    Score: {(stats.totalUpvotes || 0) * 5 -
+        (stats.totalDownvotes || 0) * 2 +
+        (stats.acceptedAnswers || 0) * 15}
+
   </p>
+
+  <p className="rep-next">
+  {(() => {
+    const score = getReputationScore();
+    if (score < 50) return `${50 - score} pts to reach Contributor badge!`;
+    if (score < 100) return `${100 - score} pts to reach Expert badge!`;
+    return `You're at the highest badge! 🎉`;
+  })()}
+</p>
+
+
 </div>
 
       <input
@@ -231,12 +250,14 @@ useEffect(() => {
     </div>
     <span className="rep-tooltip-text">
       {(() => {
-        const score = stats.totalVotes + (stats.acceptedAnswers * 10);
+        const score = getReputationScore();
         if (score < 50) return `${50 - score} points to reach Contributor!`;
         if (score < 100) return `${100 - score} points to reach Expert!`;
         return `Max badge achieved 🎉`;
       })()}
     </span>
+
+
   </div>
 </div>
 

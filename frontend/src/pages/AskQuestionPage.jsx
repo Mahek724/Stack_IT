@@ -9,6 +9,8 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '../assets/css/askQuestion.css';
 import { useTags } from '../context/TagContext';
+import { useNavigate } from "react-router-dom";
+
 
 const AskQuestionPage = () => {
   const [title, setTitle] = useState('');
@@ -17,7 +19,9 @@ const AskQuestionPage = () => {
   const isMountedRef = useRef(true);
   const [status, setStatus] = useState('open');
   const [showPreview, setShowPreview] = useState(true);
-   const { tagOptions, addNewTag } = useTags();
+  const { tagOptions, addNewTag } = useTags();
+  const navigate = useNavigate();
+
 
 const keywordTags = tagOptions.map(tag => tag.value.toLowerCase());
 
@@ -116,6 +120,7 @@ useEffect(() => {
       setTitle('');
       setEditorState(EditorState.createEmpty());
       setTags([]);
+       navigate("/");
     } catch (error) {
       toast.error('Failed to submit question. Try again.');
     }

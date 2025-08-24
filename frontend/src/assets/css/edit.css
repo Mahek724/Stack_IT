@@ -1,28 +1,30 @@
 body {
   background-color: #FFF4DB;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
 .edit-container {
   display: flex;
   justify-content: center;
-  padding-top: 3rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  min-height: 100vh;
-  padding-bottom: 3rem;
+  padding: 1.5rem 1rem;
+  min-height: calc(100vh - 3rem);
+  box-sizing: border-box;
 }
 
 .edit-wrapper {
   background: white;
   border-radius: 15px;
-  padding: 2rem;
-  max-width: 800px;
+  padding: 1.5rem;
   width: 100%;
+  max-width: 900px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .edit-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
   margin-bottom: 1.5rem;
   color: #4466cc;
   text-align: center;
@@ -34,6 +36,7 @@ body {
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #333;
+  font-size: clamp(0.9rem, 3vw, 1rem);
 }
 
 .form-input {
@@ -41,7 +44,8 @@ body {
   padding: 0.8rem;
   border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
+  box-sizing: border-box;
 }
 
 select.form-input {
@@ -54,10 +58,11 @@ select.form-input {
   border-radius: 8px;
   background: #fafafa;
   padding: 0.6rem;
-  min-height: 250px;
+  min-height: 200px;
   position: relative;
   z-index: 20;
-  overflow: visible !important;
+  overflow: visible;
+  box-sizing: border-box;
 }
 
 .tag-select {
@@ -66,13 +71,13 @@ select.form-input {
 
 .submit-btn {
   display: block;
-  margin: 1.5rem auto 0 auto;
+  margin: 1.5rem auto 0;
   padding: 0.8rem 2rem;
   background-color: #4466cc;
   border: none;
   color: white;
   font-weight: 550;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
@@ -82,7 +87,6 @@ select.form-input {
   background-color: #062461;
 }
 
-/* Highlight selected toolbar buttons */
 .rdw-option-wrapper {
   border-radius: 6px;
   margin: 2px;
@@ -105,12 +109,15 @@ select.form-input {
   border-bottom: 1px solid #ccc;
   margin-bottom: 8px;
   padding-bottom: 4px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .tag-select .react-select__control {
   border-radius: 8px;
   border-color: #ccc;
   box-shadow: none;
+  font-size: clamp(0.9rem, 3vw, 1rem);
 }
 
 .tag-select .react-select__control:hover {
@@ -122,11 +129,11 @@ select.form-input {
   color: #333;
 }
 
-.tag-select .react-select__multi-value__label {
+.tag-select .react-select_multi-value_label {
   font-weight: 500;
 }
 
-.tag-select .react-select__multi-value__remove:hover {
+.tag-select .react-select_multi-value_remove:hover {
   background-color: #4466cc;
   color: white;
 }
@@ -138,17 +145,19 @@ select.form-input {
   padding: 1rem;
   margin-top: 0.5rem;
   min-height: 150px;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
   line-height: 1.5;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
   color: #333;
   word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .preview-box h1,
 .preview-box h2 {
   color: #4466cc;
   margin-top: 1rem;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
 }
 
 .preview-box a {
@@ -156,18 +165,10 @@ select.form-input {
   text-decoration: underline;
 }
 
-.preview-box img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0.75rem auto;
-  border-radius: 8px;
-}
-
 .preview-box img,
 .editor-wrapper img {
   max-width: 100%;
-  max-height: 350px;
+  max-height: 300px;
   height: auto;
   display: block;
   margin: 0.75rem auto;
@@ -177,7 +178,7 @@ select.form-input {
 
 .preview-meta {
   margin-bottom: 1rem;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
   color: #555;
 }
 
@@ -188,10 +189,97 @@ select.form-input {
 .preview-toggle {
   margin-top: 1.5rem;
   padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 2.5vw, 0.9rem);
   background-color: #e0e7ff;
   border: 1px solid #4466cc;
   color: #062461;
   border-radius: 6px;
   cursor: pointer;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .edit-container {
+    padding: 1rem 0.5rem;
+    margin-top: 100px; /* Adjust for fixed header */
+  }
+
+  .edit-wrapper {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .edit-title {
+    font-size: clamp(1.2rem, 4.5vw, 1.8rem);
+  }
+
+  .form-input,
+  .submit-btn,
+  .tag-select .react-select__control,
+  .preview-box,
+  .preview-meta {
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  }
+
+  .editor-wrapper {
+    min-height: 150px;
+  }
+
+  .rdw-editor-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .rdw-option-wrapper {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-container {
+    padding: 0.5rem;
+    margin-top: 120px; /* Adjust for fixed header */
+  }
+
+  .edit-wrapper {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .edit-title {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  .form-label {
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  }
+
+  .form-input,
+  .submit-btn,
+  .tag-select .react-select__control,
+  .preview-box,
+  .preview-meta {
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  }
+
+  .editor-wrapper {
+    min-height: 120px;
+  }
+
+  .preview-box img,
+  .editor-wrapper img {
+    max-height: 200px;
+  }
+
+  .rdw-editor-toolbar {
+    gap: 0.3rem;
+  }
+
+  .rdw-option-wrapper {
+    padding: 3px;
+    margin: 1px;
+  }
 }
