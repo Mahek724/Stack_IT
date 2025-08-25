@@ -36,11 +36,7 @@ function Login() {
           email: form.email,
           password: form.password,
           remember: form.remember,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+        });
 
       if (form.remember) {
         localStorage.setItem(

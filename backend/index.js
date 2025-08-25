@@ -2,14 +2,7 @@ require('dotenv').config();
 require('./auth/passport');
 
 const express = require('express');
-
 const cors = require('cors');
-
-const allowedOrigins = [
-  'https://stackit-frontend-nqky.onrender.com', // frontend deployed URL
-  'http://localhost:5173'                       // local dev (optional)
-];
-
 const mongoose = require('mongoose');
 const passport = require('passport');
 
@@ -25,14 +18,19 @@ const notificationRoutes = require('./routes/notifications');
 const app = express();
 app.use(express.json());
 
-// Allow frontend to access backend
-const CLIENT_ORIGIN = process.env.CLIENT_URL || 'http://localhost:5173';
+// --- CORS setup ---
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",") // allow comma-separated origins in .env
+  : ["http://localhost:5173"]; // fallback
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow tools like Postman
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("❌ Not allowed by CORS"));
+  },
   credentials: true
 }));
-
 
 // Passport Auth
 app.use(passport.initialize());
@@ -49,6 +47,7 @@ app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 5000;
 
+// --- Start server ---
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
