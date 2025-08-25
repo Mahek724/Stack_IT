@@ -19,18 +19,24 @@ const app = express();
 app.use(express.json());
 
 // --- CORS setup ---
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",") // allow comma-separated origins in .env
-  : ["http://localhost:5173"]; // fallback
+const rawOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",")
+  : ["http://localhost:5173"];
+
+const allowedOrigins = rawOrigins.map(o => o.trim().replace(/\/$/, "")); // strip spaces + trailing slash
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow tools like Postman
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error("❌ Not allowed by CORS"));
+    if (!origin) return callback(null, true); // allow Postman etc.
+    if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+      return callback(null, true);
+    }
+    console.warn("❌ Blocked by CORS:", origin);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
 }));
+
 
 // Passport Auth
 app.use(passport.initialize());

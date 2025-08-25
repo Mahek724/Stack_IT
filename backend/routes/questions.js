@@ -27,60 +27,72 @@ router.post('/', verifyToken, async (req, res) => {  // ✅ apply middleware
 });
 
 // Get all questions with pagination and filtering
-router.get('/', async (req, res) => {
+// Get all questions with pagination and filtering
+router.get("/", async (req, res) => {
   try {
-    const { search = '', filter = 'newest', page = 1 } = req.query;
+    const { search = "", filter = "newest", page = 1 } = req.query;
     const limit = 5;
     const skip = (parseInt(page) - 1) * limit;
 
-    const query = {
-      $or: [
-        { title: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } },
-      ],
-    };
+    const query = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { tags: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {}; // ✅ if no search, match all
 
     let sortOption = { createdAt: -1 };
-    if (filter === 'mostvoted') sortOption = { upvotes: -1 };
+    if (filter === "mostvoted") sortOption = { upvotes: -1 };
 
     let allQuestions = await Question.find(query)
       .sort(sortOption)
-      .populate('userId', 'username avatar')
+      .populate("userId", "username avatar")
       .lean();
 
-    if (filter === 'unanswered') {
-      const unanswered = [];
+    // ✅ Ensure safe defaults
+    allQuestions = allQuestions.map((q) => ({
+      ...q,
+      views: q.views || 0,
+      upvotes: q.upvotes || [],
+      downvotes: q.downvotes || [],
+    }));
 
-      for (const q of allQuestions) {
-        const answerCount = await Answer.countDocuments({ questionId: q._id });
-        if (!q.acceptedAnswer && answerCount === 0) {
-          unanswered.push({
-            ...q,
-            answers: [],
-            views: q.views || 0
-          });
-        }
-      }
+    if (filter === "unanswered") {
+      // parallelize instead of loop-await
+      const unansweredChecks = await Promise.all(
+        allQuestions.map(async (q) => {
+          const answerCount = await Answer.countDocuments({ questionId: q._id });
+          if (!q.acceptedAnswer && answerCount === 0) {
+            return { ...q, answers: [] };
+          }
+          return null;
+        })
+      );
+      const unanswered = unansweredChecks.filter(Boolean);
       const paginated = unanswered.slice(skip, skip + limit);
       return res.json({ questions: paginated, total: unanswered.length });
     }
-    //
+
+    // Add answersCount
     const questionsWithExtras = await Promise.all(
       allQuestions.slice(skip, skip + limit).map(async (q) => {
         const answersCount = await Answer.countDocuments({ questionId: q._id });
         return {
           ...q,
-          answers: Array(answersCount).fill({}), 
-          views: q.views || 0
+          answers: Array(answersCount).fill({}),
         };
       })
     );
+
     res.json({ questions: questionsWithExtras, total: allQuestions.length });
   } catch (err) {
-    console.error('Error fetching paginated questions:', err);
-    res.status(500).json({ error: 'Failed to fetch questions' });
+    console.error("❌ Error fetching paginated questions:", err);
+    res.status(500).json({ error: "Failed to fetch questions", details: err.message });
   }
 });
+
 
 // Get all questions by a user
 router.put('/:questionId/accept/:answerId', verifyToken, async (req, res) => {
@@ -104,31 +116,31 @@ router.put('/:questionId/accept/:answerId', verifyToken, async (req, res) => {
 });
 
 // Get question by ID
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: "Question not found" });
 
-    if (!question) return res.status(404).json({ error: 'Question not found' });
-
-    const userId = req.user?.id || req.headers['x-guest-id']; 
-    const alreadyViewed = question.viewedBy.includes(userId);
+    const userId = req.user?.id || req.headers["x-guest-id"] || "guest";
+    const alreadyViewed = (question.viewedBy || []).includes(userId);
 
     if (!alreadyViewed) {
-      question.views += 1;
-      question.viewedBy.push(userId);
+      question.views = (question.views || 0) + 1;
+      question.viewedBy = [...(question.viewedBy || []), userId];
       await question.save();
     }
 
     const populated = await Question.findById(req.params.id)
-      .populate('userId', 'username avatar')
+      .populate("userId", "username avatar")
       .lean();
 
     res.json(populated);
   } catch (err) {
-    console.error('❌ Error fetching question:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Error fetching question:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
+
 
 // Update question by ID
 router.put('/:id', verifyToken, async (req, res) => {
