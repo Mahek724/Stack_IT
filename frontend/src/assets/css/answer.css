@@ -1,4 +1,3 @@
-/* General container */
 .answer-page-container {
   max-width: 950px;
   margin: auto;
@@ -7,7 +6,6 @@
   margin-top: 50px;
 }
 
-/* Breadcrumb */
 .breadcrumb {
   font-size: 0.95rem;
   margin-bottom: 1rem;
@@ -19,12 +17,10 @@
   color: #007bff;
 }
 
-/* Answer controls */
 .answer-controls {
   display: flex;
   gap: 0.6rem;
   margin-top: 0.5rem;
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
 }
 
 .answer-controls button {
@@ -46,7 +42,7 @@
 }
 
 .answer-controls button:first-child {
-  background-color: #3b82f6;
+  background-color: #3b82f6; 
   color: white;
 }
 
@@ -55,7 +51,7 @@
 }
 
 .answer-controls button:last-child {
-  background-color: #ef4444;
+  background-color: #ef4444; 
   color: white;
 }
 
@@ -63,7 +59,6 @@
   background-color: #dc2626;
 }
 
-/* Question box */
 .question-box {
   background: #f9f9f9;
   padding: 1.6rem;
@@ -73,7 +68,6 @@
   position: relative;
 }
 
-/* Answer count badge */
 .answer-count-badge {
   position: absolute;
   top: 1.2rem;
@@ -86,7 +80,6 @@
   font-weight: 600;
 }
 
-/* Question title row */
 .question-title-row {
   display: flex;
   justify-content: space-between;
@@ -95,7 +88,6 @@
   flex-wrap: wrap;
 }
 
-/* Status badge */
 .status-badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -115,7 +107,6 @@
   color: #065f46;
 }
 
-/* Edit and delete buttons */
 .edit-btn,
 .delete-btn {
   font-size: 0.9rem;
@@ -144,7 +135,6 @@
   background-color: #b52b36;
 }
 
-/* Share link button */
 .share-link-btn {
   background: none;
   border: none;
@@ -159,7 +149,6 @@
   color: #1e40af;
 }
 
-/* Question description */
 .question-desc {
   color: #333;
   margin: 1rem 0;
@@ -167,7 +156,7 @@
 }
 
 .question-desc img {
-  max-width: 100%; /* Ensure images are responsive */
+  max-width: 200%;
   max-height: 420px;
   object-fit: contain;
   display: block;
@@ -176,13 +165,11 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Question image wrapper */
 .question-image-wrapper {
   text-align: center;
   padding: 1rem 0;
 }
 
-/* Tags */
 .tag {
   background-color: #dbeafe;
   color: #1e3a8a;
@@ -203,7 +190,6 @@
   margin: 10px 0;
 }
 
-/* Question meta row */
 .question-meta-row {
   display: flex;
   justify-content: space-between;
@@ -213,7 +199,6 @@
   gap: 1rem;
 }
 
-/* Question status and date */
 .question-status-date {
   display: flex;
   gap: 1rem;
@@ -227,14 +212,12 @@
   color: #666;
 }
 
-/* User inline */
 .question-user-inline {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Small avatar */
 .small-avatar {
   width: 28px;
   height: 28px;
@@ -243,7 +226,6 @@
   object-fit: cover;
 }
 
-/* Vote icons */
 .vote-icon {
   cursor: pointer;
   font-size: 1rem;
@@ -274,7 +256,6 @@
   color: #333;
 }
 
-/* Question vote block */
 .question-vote-block {
   display: flex;
   align-items: center;
@@ -288,12 +269,10 @@
   gap: 1rem;
 }
 
-/* Answers section */
 .answers-section h3 {
   margin-bottom: 1rem;
 }
 
-/* Answer card */
 .answer-card {
   display: flex;
   margin-bottom: 1.4rem;
@@ -304,12 +283,10 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Answer body */
 .answer-body {
   flex: 1;
 }
 
-/* Answer footer */
 .answer-footer-horizontal {
   display: flex;
   justify-content: space-between;
@@ -317,10 +294,8 @@
   font-size: 0.85rem;
   margin-top: 1rem;
   color: #555;
-  flex-wrap: wrap;
 }
 
-/* Accept button */
 .accept-btn {
   background-color: #22c55e;
   color: white;
@@ -330,7 +305,6 @@
   cursor: pointer;
 }
 
-/* Accepted badge */
 .accepted-badge {
   background-color: #10b981;
   color: white;
@@ -342,7 +316,6 @@
   gap: 6px;
 }
 
-/* Submit answer section */
 .submit-answer {
   margin-top: 2rem;
 }
@@ -351,7 +324,6 @@
   margin-bottom: 1rem;
 }
 
-/* Rich editor wrapper */
 .rich-editor-wrapper {
   border: 1px solid #ccc;
   padding: 0.5rem;
@@ -361,7 +333,6 @@
   position: relative;
 }
 
-/* Preview toggle button */
 .preview-toggle-btn {
   margin: 1rem 0;
   background: #dbeafe;
@@ -372,7 +343,6 @@
   font-size: 0.9rem;
 }
 
-/* Preview box */
 .preview-box {
   border: 1px dashed #ccc;
   background: #fff;
@@ -382,7 +352,6 @@
   font-size: 0.95rem;
 }
 
-/* Submit button */
 .submit-btn {
   margin-top: 1rem;
   background-color: #2563eb;
@@ -396,16 +365,12 @@
 .submit-btn:hover {
   background-color: #1e40af;
 }
-
-/* Question status top */
 .question-status-top {
   width: 100%;
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: flex-start;
 }
-
-/* Question header top */
 .question-header-top {
   display: flex;
   justify-content: space-between;
@@ -414,15 +379,16 @@
   margin-bottom: 0.6rem;
 }
 
-/* Question actions */
-.question-actions-left,
-.question-actions-right {
+.question-actions-left {
   display: flex;
   gap: 0.6rem;
   align-items: center;
 }
 
-/* Vote icons (updated) */
+.question-actions-right {
+  display: flex;
+  align-items: center;
+}
 .vote-icon {
   font-size: 1.5rem;
   margin: 0 0.3rem;
@@ -447,15 +413,12 @@
   margin: 0 0.5rem;
 }
 
-/* Answer vote block */
 .answer-vote-block {
   display: flex;
   align-items: center;
   gap: 0.2rem;
   margin: 0.6rem 0;
 }
-
-/* Mention dropdown */
 .mention-dropdown {
   position: absolute;
   z-index: 999;
@@ -486,143 +449,14 @@
   border-radius: 50%;
   margin-right: 8px;
 }
-
-/* Highlighted state */
 .highlighted {
-  border: 2px solid #e50046;
+  border: 2px solid #E50046;
   background-color: #fff9e6;
   transition: background-color 0.3s, border 0.3s;
 }
-
-/* Mention highlight */
 .mention-highlight {
   color: #0077cc;
   padding: 2px 4px;
   border-radius: 4px;
   font-weight: 500;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .answer-page-container {
-    padding: 1rem;
-    margin-top: 80px;
-  }
-
-  .question-box {
-    padding: 1rem;
-  }
-
-  .answer-count-badge {
-    right: 20px;
-    top: 0.8rem;
-    font-size: 0.7rem;
-    padding: 3px 8px;
-  }
-
-  .question-title-row,
-  .question-meta-row,
-  .question-header-top,
-  .answer-footer-horizontal {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .question-actions-left,
-  .question-actions-right {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .question-votes-username {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .answer-card {
-    flex-direction: column;
-    padding: 0.8rem;
-  }
-
-  .vote-icon {
-    font-size: 1.2rem;
-  }
-
-  .vote-count {
-    font-size: 1rem;
-  }
-
-  .question-desc {
-    font-size: 0.9rem;
-  }
-
-  .tag {
-    font-size: 0.75rem;
-    padding: 3px 8px;
-  }
-
-  .rich-editor-wrapper {
-    min-height: 200px;
-  }
-
-  .mention-dropdown {
-    width: 100%;
-    max-width: 200px;
-  }
-}
-
-@media (max-width: 480px) {
-  .answer-page-container {
-    padding: 0.5rem;
-    margin-top: 90px;
-  }
-
-  .breadcrumb {
-    font-size: 0.85rem;
-  }
-
-  .question-box {
-    padding: 0.8rem;
-  }
-
-  .answer-count-badge {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-  }
-
-  .status-badge,
-  .edit-btn,
-  .delete-btn,
-  .share-link-btn,
-  .submit-btn,
-  .preview-toggle-btn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-  }
-
-  .vote-icon {
-    font-size: 1rem;
-  }
-
-  .vote-count {
-    font-size: 0.9rem;
-  }
-
-  .question-desc {
-    font-size: 0.85rem;
-  }
-
-  .small-avatar {
-    width: 24px;
-    height: 24px;
-  }
-
-  .rich-editor-wrapper {
-    min-height: 150px;
-  }
-
-  .mention-dropdown {
-    max-width: 150px;
-  }
 }

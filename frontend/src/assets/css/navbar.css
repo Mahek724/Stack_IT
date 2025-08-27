@@ -3,38 +3,34 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 64px;                  
-  background: linear-gradient(90deg, #ffffff, #1e88e5); /* modern gradient */
+  height: 56px;                  
+  background-color: #5dace7;
   color: #fff;
   padding: 0 2rem;               
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(6px);    /* subtle glassy effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   z-index: 1000;
 }
 
 .main-content {
-  padding-top: 64px; 
+  padding-top: 56px; 
 }
 
-/* ✅ Logo styling for better visibility */
-.nav-left .brand img {
-  height: 100px;
-  /* width: auto; */
-  /* object-fit: contain; */
-  cursor: pointer;
-  padding: 4px 6px;
-  /* background: #fff; */
-  /* border-radius: 8px;         */
-  /* box-shadow: 0 2px 6px rgba(0,0,0,0.15); */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.nav-left .brand {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: white;
+  transition: color 0.3s ease;
 }
 
+.nav-left .brand:hover {
+  color: #0615e7;
+}
 
-/* ✅ Right side links */
 .nav-right {
   display: flex;
   align-items: center;
@@ -45,18 +41,17 @@
   text-decoration: none;
   color: white;
   font-weight: 600;
-  padding: 6px 14px;
-  font-size: 1rem;
+  padding: 6px 12px;
+  font-size: 1.1rem;
   border-radius: 6px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .nav-right a:hover {
   background-color: rgba(255, 255, 255, 0.15);
-  color: #ffd700;  /* golden hover highlight */
+  color: #0615e7;
 }
 
-/* ✅ Icons */
 .icon {
   font-size: 1.4rem;
   cursor: pointer;
@@ -66,35 +61,36 @@
   color: white;
 }
 
-.icon:hover {
-  transform: scale(1.1);
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffd700;
-}
-
-.icon.profile-icon img {
-  height: 32px;
-  width: 32px;
+.navbar-avatar {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-/* ✅ Mobile Responsive */
-@media (max-width: 768px) {
+
+.icon:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #0615e7;
+}
+
+.icon.profile-icon {
+  position: relative;
+}
+
+@media (max-width: 600px) {
   .navbar {
     flex-direction: column;
-    height: auto;
-    padding: 0.8rem 1rem;
+    gap: 0.5rem;
+    padding: 1rem;
   }
 
   .nav-right {
     justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
   }
 
-  .nav-left .brand img {
-    height: 38px;
-    padding: 3px 5px;
+  .nav-left .brand {
+    margin-bottom: 0.5rem;
   }
 }

@@ -11,6 +11,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useLocation } from 'react-router-dom';
 
+
+
 const AnswerPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -30,19 +32,11 @@ const AnswerPage = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios
-        .get('/api/profile/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => setUser(res.data.user))
-        .catch((err) => console.error('Error fetching user:', err));
+      axios.get('/api/profile/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => setUser(res.data.user));
     }
-    axios
-      .get(`/api/questions/${id}`)
-      .then((res) => setQuestion(res.data))
-      .catch((err) => console.error('Error fetching question:', err));
-    axios
-      .get(`/api/answers/question/${id}`)
-      .then((res) => setAnswers(res.data))
-      .catch((err) => console.error('Error fetching answers:', err));
+    axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
+    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
   // Handle click outside to close mention dropdown
@@ -56,7 +50,7 @@ const AnswerPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch question and answers with guest support
+  // Fetch question and answers on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     const guestIdKey = 'guestId';
@@ -72,155 +66,116 @@ const AnswerPage = () => {
       }
       headers['x-guest-id'] = guestId;
     }
-    axios
-      .get(`/api/questions/${id}`, { headers })
-      .then((res) => setQuestion(res.data))
-      .catch((err) => console.error('Error fetching question:', err));
-    axios
-      .get(`/api/answers/question/${id}`)
-      .then((res) => setAnswers(res.data))
-      .catch((err) => console.error('Error fetching answers:', err));
+    axios.get(`/api/questions/${id}`, { headers }).then(res => setQuestion(res.data));
+    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   }, [id]);
 
   // Scroll to answer if answerId is in URL
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const answerId = params.get('answerId');
-    if (answerId) {
-      setTimeout(() => {
-        const el = document.getElementById(`answer-${answerId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.add('highlighted');
-          setTimeout(() => el.classList.remove('highlighted'), 2500);
-        }
-      }, 400);
-    }
-  }, [answers, location.search]);
+  const params = new URLSearchParams(location.search);
+  const answerId = params.get("answerId");
+  if (answerId) {
+    setTimeout(() => {
+      const el = document.getElementById(`answer-${answerId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlighted");
+        setTimeout(() => el.classList.remove("highlighted"), 2500);
+      }
+    }, 400);
+  }
+}, [answers]);
 
   // Handle vote logic
   const handleVote = async (id, type, isAnswer = false) => {
-    try {
-      const url = isAnswer
-        ? `/api/answers/vote/${id}`
-        : `/api/questions/${id}/vote`;
+  try {
+   const url = isAnswer
+      ? `/api/answers/vote/${id}`    // matches /api/answers/vote/:answerId
+      : `/api/questions/${id}/vote`; // Make sure your questions vote route matches too
 
-      const voteRes = await axios.post(
-        url,
-        { type },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }
-      );
+    const voteRes = await axios.post(url, { type }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
 
-      if (voteRes.data && voteRes.data.ownerStats) {
-        window.dispatchEvent(
-          new CustomEvent('profileStatsUpdated', {
-            detail: voteRes.data.ownerStats,
-          })
-        );
-      }
-
-      const [questionRes, answersRes] = await Promise.all([
-        axios.get(`/api/questions/${question._id}`),
-        axios.get(`/api/answers/question/${question._id}`),
-      ]);
-
-      setQuestion(questionRes.data);
-      setAnswers(answersRes.data);
-    } catch (err) {
-      console.error('Vote error:', err);
-      toast.error('Failed to vote. Please try again.');
+    if (voteRes.data && voteRes.data.ownerStats) {
+      window.dispatchEvent(new CustomEvent('profileStatsUpdated', {
+        detail: voteRes.data.ownerStats
+      }));
     }
-  };
+
+    const [questionRes, answersRes] = await Promise.all([
+      axios.get(`/api/questions/${question._id}`),
+      axios.get(`/api/answers/question/${question._id}`)
+    ]);
+
+    setQuestion(questionRes.data);
+    setAnswers(answersRes.data);
+
+  } catch (err) {
+    console.error('Vote error:', err);
+  }
+};
+
+
 
   // Handle answer submission
   const handleSubmitAnswer = async () => {
     if (!user) {
       toast.error("Please log in to submit an answer.");
-      navigate("/login");
+      navigate('/login');
       return;
     }
 
     const contentState = editorState.getCurrentContent();
     const rawContent = convertToRaw(contentState);
-    const isEmpty = !rawContent.blocks.some(
-      (block) => block.text.trim() !== ""
-    );
+    const isEmpty = !rawContent.blocks.some(block => block.text.trim() !== "");
 
     if (isEmpty) {
       toast.error("Answer content cannot be empty.");
       return;
     }
-    const content = draftToHtml(rawContent); // Fix: Changed content-primates to content
+    const content = draftToHtml(rawContent);
     try {
-      await axios.post(
-        "/api/answers",
-        { questionId: id, content }, // Use content here
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      await axios.post('/api/answers', { questionId: id, content }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       toast.success("Answer submitted successfully!");
       setEditorState(EditorState.createEmpty());
-      axios
-        .get(`/api/answers/question/${id}`)
-        .then((res) => setAnswers(res.data))
-        .catch((err) => console.error("Error fetching answers:", err));
+      axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
     } catch (err) {
       toast.error("Failed to submit your answer. Try again.");
-      console.error(err);
     }
   };
 
   // Handle accepting an answer
   const handleAccept = async (answerId) => {
-    try {
-      await axios.post(
-        `/api/answers/accept/${answerId}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }
-      );
+    await axios.post(`/api/answers/accept/${answerId}`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
 
-      axios
-        .get(`/api/questions/${id}`)
-        .then((res) => setQuestion(res.data))
-        .catch((err) => console.error('Error fetching question:', err));
-      axios
-        .get(`/api/answers/question/${id}`)
-        .then((res) => setAnswers(res.data))
-        .catch((err) => console.error('Error fetching answers:', err));
-    } catch (err) {
-      toast.error('Failed to accept answer. Try again.');
-      console.error(err);
-    }
+    axios.get(`/api/questions/${id}`).then(res => setQuestion(res.data));
+    axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
   };
-
-  // Handle delete
   const handleDelete = async (type, targetId) => {
-    if (!window.confirm('Are you sure you want to delete?')) return;
-    const url =
-      type === 'question' ? `/api/questions/${targetId}` : `/api/answers/${targetId}`;
+    if (!window.confirm("Are you sure you want to delete?")) return;
+    const url = type === 'question'
+      ? `/api/questions/${targetId}`
+      : `/api/answers/${targetId}`;
 
     try {
       await axios.delete(url, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       if (type === 'question') {
-        toast.success('Question deleted successfully!');
+        toast.success("Question deleted successfully!");
         navigate('/');
       } else {
-        toast.success('Answer deleted successfully!');
-        axios
-          .get(`/api/answers/question/${id}`)
-          .then((res) => setAnswers(res.data))
-          .catch((err) => console.error('Error fetching answers:', err));
+        toast.success("Answer deleted successfully!");
+        axios.get(`/api/answers/question/${id}`).then(res => setAnswers(res.data));
       }
     } catch (err) {
-      toast.error('Failed to delete.');
+      toast.error("Failed to delete.");
       console.error(err);
     }
   };
@@ -228,107 +183,54 @@ const AnswerPage = () => {
   // Handle share link
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success('Link copied!');
+    toast.success("Link copied!");
   };
+  const handleEditorChange = useCallback((newState) => {
+  setEditorState(newState);
 
-  // Handle editor change with mention support
-  const handleEditorChange = useCallback(
-    (newState) => {
-      setEditorState(newState);
+  const content = newState.getCurrentContent();
+  const selection = newState.getSelection();
+  const block = content.getBlockForKey(selection.getStartKey());
+  const text = block.getText();
+  const anchorOffset = selection.getAnchorOffset();
+  const charBeforeCursor = text.slice(0, anchorOffset);
+  const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
 
-      const content = newState.getCurrentContent();
-      const selection = newState.getSelection();
-      const block = content.getBlockForKey(selection.getStartKey());
-      const text = block.getText();
-      const anchorOffset = selection.getAnchorOffset();
-      const charBeforeCursor = text.slice(0, anchorOffset);
-      const match = charBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
+  if (match) {
+    const query = match[1].trim();
 
-      if (match) {
-        const query = match[1].trim();
+    axios.get(`/api/auth/search?q=${query}`)
+      .then(res => {
+        setMentionSuggestions(res.data);
+        setMentionActive(true);
+        setMentionQuery(query);
 
-        axios
-          .get(`/api/auth/search?q=${query}`)
-          .then((res) => {
-            setMentionSuggestions(res.data);
-            setMentionActive(true);
-            setMentionQuery(query);
+          setTimeout(() => {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
 
-            setTimeout(() => {
-              const selection = window.getSelection();
-              if (!selection.rangeCount) return;
+  const range = selection.getRangeAt(0).cloneRange();
+  const rect = range.getBoundingClientRect();
+  const editorRect = editorContentRef.current?.getBoundingClientRect();
 
-              const range = selection.getRangeAt(0).cloneRange();
-              const rect = range.getBoundingClientRect();
-              const editorRect = editorContentRef.current?.getBoundingClientRect();
-
-              if (rect && editorRect) {
-                setDropdownPos({
-                  top: rect.top - editorRect.top + 24,
-                  left: Math.min(
-                    rect.left - editorRect.left,
-                    editorRect.width - 250 // Ensure dropdown fits within editor
-                  ),
-                });
-              }
-            }, 0);
-          })
-          .catch(() => {
-            setMentionSuggestions([]);
-            setMentionActive(false);
-          });
-      } else {
-        setMentionSuggestions([]);
-        setMentionActive(false);
-      }
-    },
-    []
-  );
-
-  // Insert mention into editor
-  const insertMention = (user) => {
-    const contentState = editorState.getCurrentContent();
-    const selection = editorState.getSelection();
-    const block = contentState.getBlockForKey(selection.getStartKey());
-    const text = block.getText().slice(0, selection.getAnchorOffset());
-    const match = text.match(/@([a-zA-Z0-9\s]*)$/);
-    if (!match) return;
-
-    const start = selection.getStartOffset() - match[0].length;
-    const end = selection.getStartOffset();
-
-    const newSelection = selection.merge({
-      anchorOffset: start,
-      focusOffset: end,
+  if (rect && editorRect) {
+    setDropdownPos({
+      top: rect.top - editorRect.top + 24,
+      left: rect.left - editorRect.left,
     });
+  }
+}, 0);
 
-    const newContentState = Modifier.replaceText(
-      contentState,
-      newSelection,
-      `@${user.username} `,
-      editorState.getCurrentInlineStyle()
-    );
-
-    const newEditorState = EditorState.push(
-      editorState,
-      newContentState,
-      'insert-characters'
-    );
-
-    setEditorState(
-      EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter())
-    );
-
-    setMentionActive(false);
-  };
-
-  // Highlight mentions in content
-  const highlightMentions = (html) => {
-    return html.replace(
-      /@([a-zA-Z0-9._-]+)/g,
-      '<span class="mention-highlight">@$1</span>'
-    );
-  };
+        })
+        .catch(() => {
+          setMentionSuggestions([]);
+          setMentionActive(false);
+        });
+    } else {
+      setMentionSuggestions([]);
+      setMentionActive(false);
+    }
+  }, []);
 
   if (!question) return <div className="loading">Loading...</div>;
 
@@ -341,8 +243,57 @@ const AnswerPage = () => {
   const questionStatus = question.acceptedAnswer
     ? 'Answered'
     : answers.length === 0
-    ? 'Unanswered'
-    : 'Open';
+      ? 'Unanswered'
+      : 'Open';
+
+
+  const insertMention = (user) => {
+  const contentState = editorState.getCurrentContent();
+  const selection = editorState.getSelection();
+  const block = contentState.getBlockForKey(selection.getStartKey());
+  const text = block.getText().slice(0, selection.getAnchorOffset());
+  const match = text.match(/@([a-zA-Z0-9\s]*)$/);
+  if (!match) return;
+
+  const start = selection.getStartOffset() - match[0].length;
+  const end = selection.getStartOffset();
+
+  const newSelection = selection.merge({
+    anchorOffset: start,
+    focusOffset: end,
+  });
+
+  const newContentState = Modifier.replaceText(
+    contentState,
+    newSelection,
+    `@${user.username} `,
+    editorState.getCurrentInlineStyle()
+  );
+
+  const newEditorState = EditorState.push(
+    editorState,
+    newContentState,
+    'insert-characters'
+  );
+
+  setEditorState(
+  EditorState.forceSelection(
+    EditorState.push(
+      editorState,
+      newContentState,
+      'insert-characters'
+    ),
+    newContentState.getSelectionAfter()
+  )
+);
+
+  setMentionActive(false);
+};
+
+const highlightMentions = (html) => {
+  return html.replace(/@([a-zA-Z0-9._-]+)/g, '<span class="mention-highlight">@$1</span>');
+
+};
 
   return (
     <div className="answer-page-container">
@@ -358,52 +309,32 @@ const AnswerPage = () => {
             </span>
             {user?._id === question.userId?._id && (
               <>
-                <button
-                  onClick={() => navigate(`/edit-question/${question._id}`)}
-                  className="edit-btn"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => handleDelete('question', question._id)}
-                  className="delete-btn"
-                >
-                  🗑️ Delete
-                </button>
+                <button onClick={() => navigate(`/edit-question/${question._id}`)} className="edit-btn">✏️ Edit</button>
+                <button onClick={() => handleDelete('question', question._id)} className="delete-btn">🗑️ Delete</button>
               </>
             )}
           </div>
           <div className="question-actions-right">
-            <button className="share-link-btn" onClick={handleShare}>
-              🔗 Share
-            </button>
+            <button className="share-link-btn" onClick={handleShare}>🔗 Share</button>
           </div>
         </div>
 
         <h2 className="question-heading">{question.title}</h2>
 
-        <div
-          className="question-desc"
+        <div className="question-desc"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.description) }}
         />
 
         {question.imageUrl && (
           <div className="question-image-wrapper">
-            <img
-              src={question.imageUrl}
-              alt="question"
-              className="question-image"
-              loading="lazy" // Improve performance
-            />
+            <img src={question.imageUrl} alt="question" className="question-image" />
           </div>
         )}
 
         {question.tags?.length > 0 && (
           <div className="question-tags">
             {question.tags.map((tag, idx) => (
-              <span className="tag" key={idx}>
-                {tag}
-              </span>
+              <span className="tag" key={idx}>{tag}</span>
             ))}
           </div>
         )}
@@ -411,8 +342,7 @@ const AnswerPage = () => {
         <div className="question-meta-row">
           <div className="question-status-date">
             <span className="last-activity">
-              ⏱️ Last activity:{' '}
-              {new Date(question.updatedAt || question.createdAt).toDateString()}
+              ⏱️ Last activity: {new Date(question.updatedAt || question.createdAt).toDateString()}
             </span>
             <span className="question-date">
               📅 {new Date(question.createdAt).toDateString()}
@@ -422,207 +352,163 @@ const AnswerPage = () => {
           <div className="question-votes-username">
             <div className="question-vote-block">
               <button
-                className={`vote-icon ${
-                  question.upvotes.includes(user?._id) ? 'active-up' : ''
-                }`}
+                className={`vote-icon ${question.upvotes.includes(user?._id) ? 'active-up' : ''}`}
                 onClick={() => handleVote(question._id, 'upvote')}
-                aria-label="Upvote question"
-              >
-                👍
-              </button>
-              <div className="vote-count">
-                {question.upvotes.length - question.downvotes.length}
-              </div>
+              > 👍 </button>
+
+
+              <div className="vote-count">{question.upvotes.length - question.downvotes.length}</div>
+
               <button
-                className={`vote-icon ${
-                  question.downvotes.includes(user?._id) ? 'active-down' : ''
-                }`}
+                className={`vote-icon ${question.downvotes.includes(user?._id) ? 'active-down' : ''}`}
                 onClick={() => handleVote(question._id, 'downvote')}
-                aria-label="Downvote question"
-              >
-                👎
-              </button>
+              > 👎 </button>
             </div>
 
             <div className="question-user-inline">
-              <img
-                src={
-                  question.userId?.avatar?.startsWith('/api/')
-                    ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
-                    : question.userId?.avatar || '/avatar.png'
-                }
-                alt="User avatar"
-                className="avatar small-avatar"
-                loading="lazy" // Improve performance
-              />
-              <span className="username">{question.userId?.username || 'User'}</span>
+             <img
+  src={
+    question.userId?.avatar?.startsWith('/api/')
+      ? `${import.meta.env.VITE_API_BASE_URL}${question.userId.avatar}`
+      : question.userId?.avatar || '/avatar.png'
+  }
+  alt="avatar"
+  className="avatar"
+/>
+
+
+
+              <span className="username">{question.userId?.username || "User"}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="answers-section">
-        {answers.map((ans) => (
+      {answers.map(ans => (
           <div key={ans._id} id={`answer-${ans._id}`} className="answer-card">
-            <div className="answer-body">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(highlightMentions(ans.content)),
-                }}
-              />
 
-              <div className="answer-vote-block">
-                <button
-                  className={`vote-icon ${
-                    ans.upvotes.includes(user?._id) ? 'active-up' : ''
-                  }`}
-                  onClick={() => handleVote(ans._id, 'upvote', true)}
-                  aria-label="Upvote answer"
-                >
-                  👍
-                </button>
-                <div className="vote-count">
-                  {ans.upvotes.length - ans.downvotes.length}
-                </div>
-                <button
-                  className={`vote-icon ${
-                    ans.downvotes.includes(user?._id) ? 'active-down' : ''
-                  }`}
-                  onClick={() => handleVote(ans._id, 'downvote', true)}
-                  aria-label="Downvote answer"
-                >
-                  👎
-                </button>
+          <div className="answer-body">
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlightMentions(ans.content)) }} />
+
+
+            <div className="answer-vote-block">
+              <button
+                className={`vote-icon ${ans.upvotes.includes(user?._id) ? 'active-up' : ''}`}
+                onClick={() => handleVote(ans._id, 'upvote', true)}
+              > 👍 </button>
+
+              <div className="vote-count">{ans.upvotes.length - ans.downvotes.length}</div>
+
+              <button
+                className={`vote-icon ${ans.downvotes.includes(user?._id) ? 'active-down' : ''}`}
+                onClick={() => handleVote(ans._id, 'downvote', true)}
+              > 👎 </button>
+            </div>
+
+            <div className="answer-footer-horizontal">
+              <div className="question-user-inline">
+                <img
+                  src={
+                    ans.userId?.avatar?.startsWith('/api/')
+                      ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
+                      : ans.userId?.avatar || '/avatar.png'
+                  }
+                  alt="avatar"
+                  className="avatar"
+                />
+                 
+                <span className="username">{ans.userId?.username || "User"}</span>
               </div>
 
-              <div className="answer-footer-horizontal">
-                <div className="question-user-inline">
-                  <img
-                    src={
-                      ans.userId?.avatar?.startsWith('/api/')
-                        ? `${import.meta.env.VITE_API_BASE_URL}${ans.userId.avatar}`
-                        : ans.userId?.avatar || '/avatar.png'
-                    }
-                    alt="User avatar"
-                    className="avatar small-avatar"
-                    loading="lazy" // Improve performance
-                  />
-                  <span className="username">{ans.userId?.username || 'User'}</span>
-                </div>
+              <span className="answer-meta">
+                📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
+                <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
+              </span>
 
-                <span className="answer-meta">
-                  📅 {new Date(ans.createdAt).toDateString()} &nbsp; | &nbsp;
-                  <strong>{ans.upvotes.length - ans.downvotes.length} votes</strong>
+              {user?._id === ans.userId?._id && (
+                <div className="answer-controls">
+                  <button onClick={() => navigate(`/edit-answer/${ans._id}`)}>Edit</button>
+                  <button onClick={() => handleDelete('answer', ans._id)}>Delete</button>
+                </div>
+              )}
+
+              {question.userId?._id === user?._id && !question.acceptedAnswer && (
+                <button className="accept-btn" onClick={() => handleAccept(ans._id)}>
+                  <i className="fas fa-check-circle"></i> Accept
+                </button>
+              )}
+
+              {question.acceptedAnswer === ans._id && (
+                <span className="accepted-badge">
+                  <i className="fas fa-check-circle"></i> Accepted
                 </span>
-
-                {user?._id === ans.userId?._id && (
-                  <div className="answer-controls">
-                    <button
-                      onClick={() => navigate(`/edit-answer/${ans._id}`)}
-                      aria-label="Edit answer"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete('answer', ans._id)}
-                      aria-label="Delete answer"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-
-                {question.userId?._id === user?._id && !question.acceptedAnswer && (
-                  <button
-                    className="accept-btn"
-                    onClick={() => handleAccept(ans._id)}
-                    aria-label="Accept answer"
-                  >
-                    <i className="fas fa-check-circle"></i> Accept
-                  </button>
-                )}
-
-                {question.acceptedAnswer === ans._id && (
-                  <span className="accepted-badge">
-                    <i className="fas fa-check-circle"></i> Accepted
-                  </span>
-                )}
-              </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
       <div className="submit-answer">
-          <h3>Submit Your Answer</h3>
-          <div style={{ position: 'relative' }}>
-            <Editor
-              editorState={editorState}
-              onEditorStateChange={handleEditorChange}
-              wrapperClassName="rich-editor-wrapper"
-              editorClassName="rich-editor"
-              editorRef={(ref) => {
-                if (ref) editorContentRef.current = ref.editor;
-              }}
-            />
+        <h3>Submit Your Answer</h3>
+        <div style={{ position: 'relative' }}>
+          <Editor
+            editorState={editorState}
+            onEditorStateChange={handleEditorChange}
+            wrapperClassName="rich-editor-wrapper"
+            editorClassName="rich-editor"
+            editorRef={(ref) => {
+              if (ref) editorContentRef.current = ref.editor;
+            }}
+          />
 
-            {/* Mention Dropdown */}
-            {mentionActive && mentionSuggestions.length > 0 && (
-              <div
-                className="mention-dropdown"
-                style={{
-                  position: 'absolute',
-                  top: dropdownPos.top,
-                  left: dropdownPos.left,
-                  zIndex: 9999,
-                }}
-              >
-                {mentionSuggestions.map((user) => (
-                  <div
-                    key={user._id}
-                    className="mention-suggestion"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      insertMention(user);
-                    }}
-                  >
-                    <img
-                      src={
-                        user.avatar?.startsWith('/api/')
-                          ? `${import.meta.env.VITE_API_BASE_URL}${user.avatar}`
-                          : user.avatar || '/avatar.png'
-                      }
-                      alt="avatar"
-                      className="avatar small-avatar"
-                    />
-                    @{user.username}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <button
-            className="preview-toggle-btn"
-            onClick={() => setShowPreview((prev) => !prev)}
-          >
-            {showPreview ? "Hide Preview" : "Show Preview"}
-          </button>
-          {showPreview && (
+          {/* Mention Dropdown */}
+          {mentionActive && mentionSuggestions.length > 0 && (
             <div
-              className="preview-box"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
-                  draftToHtml(convertToRaw(editorState.getCurrentContent()))
-                ),
+              className="mention-dropdown"
+              style={{
+                position: 'absolute',
+                top: dropdownPos.top,
+                left: dropdownPos.left,
+                zIndex: 9999
               }}
-            />
+            >
+              {mentionSuggestions.map((user, idx) => (
+                <div
+                  key={user._id}
+                  className="mention-suggestion"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); 
+                    insertMention(user); 
+                  }}
+                >
+                  <img
+                    src={user.avatar?.startsWith('/api/')
+                      ? `${import.meta.env.VITE_API_BASE_URL}${user.avatar}`
+                      : user.avatar || '/avatar.png'}
+                    alt="avatar"
+                    className="avatar small-avatar"
+                  />
+                  @{user.username}
+                </div>
+
+              ))}
+            </div>
           )}
-          <button className="submit-btn" onClick={handleSubmitAnswer}>
-            Submit
-          </button>
         </div>
 
+        <button className="preview-toggle-btn" onClick={() => setShowPreview(prev => !prev)}>
+          {showPreview ? "Hide Preview" : "Show Preview"}
+        </button>
+        {showPreview && (
+          <div
+            className="preview-box"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(draftToHtml(convertToRaw(editorState.getCurrentContent())))
+            }}
+          />
+        )}
+        <button className="submit-btn" onClick={handleSubmitAnswer}>Submit</button>
+      </div>
 
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     </div>
