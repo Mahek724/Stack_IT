@@ -83,13 +83,21 @@ router.post('/login', async (req, res) => {
 });
 
 // Forgot Password
+// Forgot Password
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found' });
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+    // --- FIX: split client URLs ---
+    const clientUrls = process.env.CLIENT_URL.split(",");
+    const baseUrl = process.env.NODE_ENV === "production" ? clientUrls[1] : clientUrls[0];
+
+    const resetLink = `${baseUrl}/reset-password/${token}`;
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -97,6 +105,7 @@ router.post('/forgot-password', async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
     });
+
     await transporter.sendMail({
       from: `"StackIt Support" <${process.env.EMAIL_USER}>`,
       to: user.email,
@@ -108,12 +117,14 @@ router.post('/forgot-password', async (req, res) => {
         <p>This link will expire in 15 minutes.</p>
       `,
     });
+
     res.json({ message: 'Reset link sent to your email' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error sending reset email' });
   }
 });
+
 
 // Reset Password
 router.post('/reset-password/:token', async (req, res) => {
@@ -133,39 +144,53 @@ router.post('/reset-password/:token', async (req, res) => {
 });
 
 // Google login
+// Google login
 router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
-
+// Google callback route (no session, JWT only)
 // Google callback route (no session, JWT only)
 router.get(
   '/google/callback',
+  (req, res, next) => {
+    const clientUrls = process.env.CLIENT_URL.split(",");
+    req.baseUrlForClient =
+      process.env.NODE_ENV === "production" ? clientUrls[1] : clientUrls[0];
+    next();
+  },
   passport.authenticate('google', {
-    failureRedirect: `${process.env.CLIENT_URL}/login?error=google_login_failed`,
-    session: false, // important for JWT-only
+    failureRedirect:
+      process.env.NODE_ENV === "production"
+        ? "https://stackit-frontend-nqky.onrender.com/login?error=google"
+        : "http://localhost:5173/login?error=google",
+    session: false,
   }),
   (req, res) => {
     const user = req.user;
 
     // Create JWT
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
 
-    // Redirect with token and user info
-    const redirectUrl = `${process.env.CLIENT_URL}/google/callback?token=${token}&user=${encodeURIComponent(JSON.stringify({
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar || '/avatar.png',
-      role: user.role,
-    }))}`;
+    const baseUrl = req.baseUrlForClient;
+
+    // 👇 redirect to /login instead of /google/callback
+    const redirectUrl = `${baseUrl}/login?token=${token}&user=${encodeURIComponent(
+      JSON.stringify({
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar || "/avatar.png",
+        role: user.role,
+      })
+    )}`;
 
     res.redirect(redirectUrl);
   }
 );
+
+
 
 
 

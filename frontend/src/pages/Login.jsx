@@ -23,6 +23,22 @@ function Login() {
     }
   }, []);
 
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  const user = params.get("user");
+
+  if (token && user) {
+    try {
+      const parsedUser = JSON.parse(decodeURIComponent(user));
+      login(token, parsedUser);
+      navigate("/");
+    } catch (err) {
+      console.error("Error parsing Google user:", err);
+    }
+  }
+}, [login, navigate]);
+
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
   const handleCheckbox = e => setForm({ ...form, remember: e.target.checked });
 
@@ -59,8 +75,14 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.open('/api/auth/google', '_self');
-  };
+  const backendUrl =
+    import.meta.env.MODE === "production"
+      ? "https://stackit-backend-6nrt.onrender.com"
+      : "http://localhost:5000";
+
+  window.open(`${backendUrl}/api/auth/google`, "_self");
+};
+
 
   return (
     <div className="login-container">
